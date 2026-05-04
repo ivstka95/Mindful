@@ -1,8 +1,8 @@
 package ivan.karpiuk.mindful.data
 
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
 interface DataRepository {
   val data: Flow<List<String>>

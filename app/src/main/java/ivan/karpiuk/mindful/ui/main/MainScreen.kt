@@ -13,7 +13,7 @@ import ivan.karpiuk.mindful.theme.MindfulTheme
 
 @Composable
 fun MainScreen(
-  onItemClick: (NavKey) -> Unit,
+  @Suppress("UnusedParameter") onItemClick: (NavKey) -> Unit,
   modifier: Modifier = Modifier,
   viewModel: MainScreenViewModel = hiltViewModel(),
 ) {

@@ -10,11 +10,10 @@ import org.junit.jupiter.api.Test
 
 class MainScreenViewModelTest {
   @Test
-  fun uiState_initiallyLoading() =
-    runTest {
-      val viewModel = MainScreenViewModel(FakeDataRepository())
-      assertEquals(MainScreenUiState.Loading, viewModel.uiState.first())
-    }
+  fun uiState_initiallyLoading() = runTest {
+    val viewModel = MainScreenViewModel(FakeDataRepository())
+    assertEquals(MainScreenUiState.Loading, viewModel.uiState.first())
+  }
 }
 
 private class FakeDataRepository : DataRepository {
