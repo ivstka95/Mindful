@@ -1,32 +1,27 @@
-*.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+# Gradle
+.gradle/
+**/build/
 local.properties
+
+# Kotlin
+.kotlin/
+
+# Android build outputs (in case anything escapes /build/)
+**/*.apk
+**/*.aab
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+
+# VS Code
+.vscode/
 
 # Claude Code
 .claude/sessions/
 .claude/cache/
-
-# Build outputs
-**/build/
-**/*.apk
-**/*.aab
+.claude/settings.local.json
 
 # OS
 .DS_Store
 Thumbs.db
-
-# IDE
-.vscode/
-*.iml

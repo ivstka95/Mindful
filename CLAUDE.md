@@ -6,23 +6,26 @@ Bundle ID: `ivan.karpiuk.mindful`
 Repository: (to be set up)
 
 ## Stack
-- Kotlin 2.2.10, Coroutines + Flow only (no LiveData, no RxJava)
-- Jetpack Compose + Material 3 1.4.0 (no XML layouts)
-- Hilt 2.52 for DI
-- Room 2.7 for persistence; DataStore for prefs
+- Kotlin 2.3.20, Coroutines + Flow only (no LiveData, no RxJava)
+- Jetpack Compose via BOM 2026.03.01 + Material 3 (no XML layouts)
+- Jetpack Navigation 3 (`androidx.navigation3` 1.0.1) — type-safe `NavKey`s, requires `kotlin-serialization` plugin on any module declaring keys
+- Hilt 2.59.2 + KSP for DI (no kapt)
+- Room 2.8.2 for persistence; DataStore for prefs
 - WorkManager + AlarmManager for scheduling
 - AccessibilityService for foreground app detection and overlay
 - RevenueCat (Phase 2) for subscriptions
-- KMP-ready: domain layer pure Kotlin, zero Android imports
-- AGP 9.1, Gradle 9.1, JDK 17, target SDK 35, min SDK 26
-- build-logic/ convention plugins (NowInAndroid pattern)
+- KMP-ready: `:core:domain` is pure Kotlin (`mindful.jvm.library`), zero Android imports
+- AGP 9.0.1, Gradle 9.1.0, JDK 17, compileSdk 36, targetSdk 35, minSdk 26
+- `build-logic/` convention plugins (NowInAndroid pattern), exposed via the version catalog: `mindful.android.application`, `mindful.android.library`, `mindful.android.library.compose`, `mindful.android.feature`, `mindful.android.hilt`, `mindful.android.room`, `mindful.jvm.library`. The Android conventions auto-add `testImplementation` (JUnit 5 + MockK + Turbine + coroutines-test) and `androidTestImplementation` (test runner + ext-junit), and configure `useJUnitPlatform()` for unit-test tasks — modules don't redeclare these.
 
-## Module structure (current — will grow to 14)
-- `:app` — Application, MainActivity, DI graph composition root
+## Module structure (5 modules today — will grow as features land)
+- `:app` — `MindfulApplication` (`@HiltAndroidApp`), `MainActivity` (`@AndroidEntryPoint`), root `MainNavigation` (Nav3). DI graph composition root. End-to-end Hilt is wired: `MainScreenViewModel` is `@HiltViewModel`-injected, `DataRepository` is `@Binds`-bound in `data/DataModule.kt`. Sources under `ivan/karpiuk/mindful/`.
 - `:core:designsystem` — Material 3 theme tokens, custom typography
-- `:core:domain` — pure Kotlin: usecases, entities (no Android deps)
-- `:core:database` — Room entities and DAOs
+- `:core:domain` — pure Kotlin (`mindful.jvm.library`): usecases, entities. Uses `kotlinx-coroutines-core` (not `-android`) to keep KMP-portable.
+- `:core:database` — Room entities and DAOs. Applies `mindful.android.room` (Room runtime + KSP compiler + schema export) and `mindful.android.hilt`.
 - `:feature:onboarding` — permission wizard
+
+Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `projects.core.domain` etc., not string paths.
 
 ## Architecture rules (Clean Architecture, hard boundaries)
 - Direction: feature/* -> :core:domain -> :core:database/datastore. Never the other way.
@@ -45,10 +48,12 @@ Repository: (to be set up)
 - Coverage gate: domain >= 90%, feature >= 70%, service >= 60%.
 
 ## Build commands
-- `./gradlew assembleDebug` — debug build
-- `./gradlew testDebugUnitTest` — unit tests
-- `./gradlew lint detekt ktlintCheck` — static analysis
-- `./gradlew :app:installDebug` — install on connected device
+- `./gradlew :app:assembleDebug` — debug build
+- `./gradlew :app:installDebug` — install on connected device/emulator (debug applicationId is `ivan.karpiuk.mindful.debug`)
+- `./gradlew test` — unit tests across all modules (JUnit 5 via `useJUnitPlatform()` configured in convention plugins)
+- `./gradlew :app:testDebugUnitTest` — `:app` unit tests only
+- Launch: `adb shell am start -n ivan.karpiuk.mindful.debug/ivan.karpiuk.mindful.MainActivity`
+- Static analysis (lint/detekt/ktlint) is **not yet wired**. ktlint runs only via the `scripts/format-on-edit.sh` PostToolUse hook.
 
 ## Knowledge sources (in priority order)
 - For Android platform: ALWAYS use `android docs search "<query>"` before web search.
@@ -75,9 +80,13 @@ Repository: (to be set up)
 ## Workflow rules
 - Every feature: `/brainstorm` -> `thoughts/specs/<feature>.md` -> `/write-plan` -> `/execute-plan`.
 - Long features use git worktrees (Superpowers `using-git-worktrees`).
-- Pre-commit hook runs gitleaks; PostToolUse hook runs ktlintFormat.
+- Claude Code hooks (configured in `.claude/settings.json`):
+  - PostToolUse on Edit/Write → `scripts/format-on-edit.sh` (ktlint format)
+  - PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard)
+- No git pre-commit hook is installed yet (gitleaks integration TODO).
 - After 3 failed bug-fix attempts, STOP. Run `/debug` for root-cause analysis.
 - Keep `/context` <= 60%. At 60%+, `/compact focus on <topic>`.
+- Open follow-ups for the foundation are tracked in `thoughts/foundation-followups.md`.
 
 ## Communication rules
 - Ivan is a Senior Android Developer (8 years). Skip beginner explanations.
