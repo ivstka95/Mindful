@@ -83,8 +83,8 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
 - Long features use git worktrees (Superpowers `using-git-worktrees`).
 - Claude Code hooks (configured in `.claude/settings.json`):
   - PostToolUse on Edit/Write → `scripts/format-on-edit.sh` (ktlint format)
-  - PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard)
-- No git pre-commit hook is installed yet (gitleaks integration TODO).
+  - PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard within the CLI session)
+- Git pre-commit hook: gitleaks via [pre-commit](https://pre-commit.com/) (`.pre-commit-config.yaml`). Contributors run `pre-commit install` once after cloning; commits are scanned for leaked secrets before they land. Both `gitleaks` and `pre-commit` are available via Homebrew.
 - After 3 failed bug-fix attempts, STOP. Run `/debug` for root-cause analysis.
 - Keep `/context` <= 60%. At 60%+, `/compact focus on <topic>`.
 - Open follow-ups for the foundation are tracked in `thoughts/foundation-followups.md`.

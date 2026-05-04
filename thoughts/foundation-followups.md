@@ -4,14 +4,6 @@ Tracked from the foundation hardening pass on 2026-05-04. None block day-to-day 
 
 ## Setup
 
-### Set up the GitHub remote
-- `git remote -v` is empty; `main` has no upstream.
-- Action: `git remote add origin <url>` then `git push -u origin main`.
-
-### Install a gitleaks pre-commit hook
-- Claude Code's `scripts/forbid-secrets.sh` runs only inside the CC session; commits made elsewhere bypass it.
-- Action: install `gitleaks` via `pre-commit` (or a plain `.git/hooks/pre-commit`) before the repo goes public.
-
 ### Wire static analysis
 - No `lint` / `detekt` / `ktlintCheck` Gradle tasks are wired. ktlint formats only via the `format-on-edit.sh` PostToolUse hook.
 - Action: add detekt + ktlint Gradle plugins (or detekt + Spotless) inside a convention plugin so CI can gate on them.
