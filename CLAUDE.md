@@ -80,12 +80,13 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
 - Never import `androidx.compose.material:material` (Material 2). Always Material 3.
 
 ## Workflow rules
+- **Never commit on `main`/`master`.** All edits — features, fixes, chores, docs, CI — happen on a dedicated branch named `<type>/<short-description>` (e.g. `feat/per-app-limits`, `fix/overlay-flicker`, `chore/bump-room`, `docs/update-readme`, `ci/forbid-main-commit`). Before staging anything, check `git rev-parse --abbrev-ref HEAD`; if it returns `main` or `master`, run `git checkout -b <type>/<short-description>` first. Enforced locally by the `forbid-main-commit` pre-commit hook, by `Bash(git push * main*)` denies in `.claude/settings.json`, and server-side by GitHub branch protection on `main`.
 - Every feature: `/brainstorm` -> `thoughts/specs/<feature>.md` -> `/write-plan` -> `/execute-plan`.
 - Long features use git worktrees (Superpowers `using-git-worktrees`).
 - Claude Code hooks (configured in `.claude/settings.json`):
   - PostToolUse on Edit/Write → `scripts/format-on-edit.sh` (ktlint format)
   - PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard within the CLI session)
-- Git pre-commit hooks via [pre-commit](https://pre-commit.com/) (`.pre-commit-config.yaml`). Contributors run `pre-commit install` once after cloning. Hooks: (1) gitleaks scans staged files for secrets; (2) `gradle-static-analysis` runs `./gradlew detekt ktlintCheck` whenever a `.kt`/`.kts` file is staged (~5s warm daemon, ~30s cold; skipped when no Kotlin files staged). Both `gitleaks` and `pre-commit` are available via Homebrew.
+- Git pre-commit hooks via [pre-commit](https://pre-commit.com/) (`.pre-commit-config.yaml`). Contributors run `pre-commit install` once after cloning. Hooks: (1) gitleaks scans staged files for secrets; (2) `forbid-main-commit` rejects commits while `HEAD` is on `main`/`master` (override with `--no-verify` for emergency hotfixes); (3) `gradle-static-analysis` runs `./gradlew detekt ktlintCheck` whenever a `.kt`/`.kts` file is staged (~5s warm daemon, ~30s cold; skipped when no Kotlin files staged). Both `gitleaks` and `pre-commit` are available via Homebrew.
 - CI: `.github/workflows/check.yml` runs full `./gradlew check` (lint + detekt + ktlint + tests) on push to `main` and on PRs targeting `main`. Reports uploaded as artifacts on failure.
 - After 3 failed bug-fix attempts, STOP. Run `/debug` for root-cause analysis.
 - Keep `/context` <= 60%. At 60%+, `/compact focus on <topic>`.
