@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(android *)",
+      "Read(**)",
+      "Edit(**.kt)",
+      "Edit(**.kts)",
+      "Edit(**.toml)",
+      "Edit(**.xml)",
+      "Edit(**.md)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/format-on-edit.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/forbid-secrets.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
