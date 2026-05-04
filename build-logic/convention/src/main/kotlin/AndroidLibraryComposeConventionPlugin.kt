@@ -1,4 +1,5 @@
-import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
@@ -12,27 +13,21 @@ import org.gradle.kotlin.dsl.getByType
 class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
-            // Wait for an Android plugin to be applied, then configure Compose.
+            pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
             pluginManager.withPlugin("com.android.application") {
-                val extension = extensions.getByType<com.android.build.api.dsl.ApplicationExtension>()
-                configureAndroidCompose(extension)
+                extensions.getByType<ApplicationExtension>().buildFeatures.compose = true
+                addComposeDependencies()
             }
             pluginManager.withPlugin("com.android.library") {
-                val extension = extensions.getByType<com.android.build.api.dsl.LibraryExtension>()
-                configureAndroidCompose(extension)
+                extensions.getByType<LibraryExtension>().buildFeatures.compose = true
+                addComposeDependencies()
             }
         }
     }
 }
 
-internal fun Project.configureAndroidCompose(commonExtension: CommonExtension<*, *, *, *, *, *>) {
+private fun Project.addComposeDependencies() {
     val libs = libs()
-    commonExtension.apply {
-        buildFeatures {
-            compose = true
-        }
-    }
-
     dependencies {
         val bom = libs.findLibrary("androidx-compose-bom").get()
         add("implementation", platform(bom))
