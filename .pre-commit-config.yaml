@@ -3,3 +3,13 @@ repos:
     rev: v8.30.1
     hooks:
       - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: gradle-static-analysis
+        name: detekt + ktlintCheck
+        entry: ./gradlew detekt ktlintCheck --quiet
+        language: system
+        pass_filenames: false
+        files: \.(kt|kts)$
+        stages: [pre-commit]
