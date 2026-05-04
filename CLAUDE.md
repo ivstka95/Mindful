@@ -80,7 +80,13 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
 - Never import `androidx.compose.material:material` (Material 2). Always Material 3.
 
 ## Workflow rules
-- **Never commit on `main`/`master`.** All edits — features, fixes, chores, docs, CI — happen on a dedicated branch named `<type>/<short-description>` (e.g. `feat/per-app-limits`, `fix/overlay-flicker`, `chore/bump-room`, `docs/update-readme`, `ci/forbid-main-commit`). Before staging anything, check `git rev-parse --abbrev-ref HEAD`; if it returns `main` or `master`, run `git checkout -b <type>/<short-description>` first. Enforced locally by the `forbid-main-commit` pre-commit hook, by `Bash(git push * main*)` denies in `.claude/settings.json`, and server-side by GitHub branch protection on `main`.
+- **Never commit on `main`/`master`.** All edits — features, fixes, chores, docs, CI — happen on a dedicated branch named `<type>/<short-description>` (e.g. `feat/per-app-limits`, `fix/overlay-flicker`, `chore/bump-room`, `docs/update-readme`, `ci/forbid-main-commit`). Before starting **any** new branch, sync `main` first so the branch is based on the latest remote tip:
+  ```bash
+  git checkout main
+  git pull --ff-only
+  git checkout -b <type>/<short-description>
+  ```
+  Equivalent one-shot that never checks out `main` locally: `git fetch origin main && git checkout -b <type>/<short-description> origin/main`. If `git rev-parse --abbrev-ref HEAD` returns `main`/`master` and you have uncommitted changes, stash them (`git stash`) before the sync, then create the branch and pop the stash. Enforced locally by the `forbid-main-commit` pre-commit hook, by `Bash(git push * main*)` denies in `.claude/settings.json`, and server-side by GitHub branch protection on `main`.
 - Every feature: `/brainstorm` -> `thoughts/specs/<feature>.md` -> `/write-plan` -> `/execute-plan`.
 - Long features use git worktrees (Superpowers `using-git-worktrees`).
 - Claude Code hooks (configured in `.claude/settings.json`):
