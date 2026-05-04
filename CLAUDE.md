@@ -15,7 +15,7 @@ Repository: (to be set up)
 - AccessibilityService for foreground app detection and overlay
 - RevenueCat (Phase 2) for subscriptions
 - KMP-ready: `:core:domain` is pure Kotlin (`mindful.jvm.library`), zero Android imports
-- AGP 9.0.1, Gradle 9.1.0, JDK 17, compileSdk 36, targetSdk 35, minSdk 26
+- AGP 9.1.1, Gradle 9.3.1, JDK 17, compileSdk 36, targetSdk 35, minSdk 26
 - `build-logic/` convention plugins (NowInAndroid pattern), exposed via the version catalog: `mindful.android.application`, `mindful.android.library`, `mindful.android.library.compose`, `mindful.android.feature`, `mindful.android.hilt`, `mindful.android.room`, `mindful.jvm.library`. The Android conventions auto-add `testImplementation` (JUnit 5 + MockK + Turbine + coroutines-test) and `androidTestImplementation` (test runner + ext-junit), and configure `useJUnitPlatform()` for unit-test tasks — modules don't redeclare these.
 
 ## Module structure (5 modules today — will grow as features land)
