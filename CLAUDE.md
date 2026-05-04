@@ -85,7 +85,8 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
 - Claude Code hooks (configured in `.claude/settings.json`):
   - PostToolUse on Edit/Write → `scripts/format-on-edit.sh` (ktlint format)
   - PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard within the CLI session)
-- Git pre-commit hook: gitleaks via [pre-commit](https://pre-commit.com/) (`.pre-commit-config.yaml`). Contributors run `pre-commit install` once after cloning; commits are scanned for leaked secrets before they land. Both `gitleaks` and `pre-commit` are available via Homebrew.
+- Git pre-commit hooks via [pre-commit](https://pre-commit.com/) (`.pre-commit-config.yaml`). Contributors run `pre-commit install` once after cloning. Hooks: (1) gitleaks scans staged files for secrets; (2) `gradle-static-analysis` runs `./gradlew detekt ktlintCheck` whenever a `.kt`/`.kts` file is staged (~5s warm daemon, ~30s cold; skipped when no Kotlin files staged). Both `gitleaks` and `pre-commit` are available via Homebrew.
+- CI: `.github/workflows/check.yml` runs full `./gradlew check` (lint + detekt + ktlint + tests) on push to `main` and on PRs targeting `main`. Reports uploaded as artifacts on failure.
 - After 3 failed bug-fix attempts, STOP. Run `/debug` for root-cause analysis.
 - Keep `/context` <= 60%. At 60%+, `/compact focus on <topic>`.
 - Open follow-ups for the foundation are tracked in `thoughts/foundation-followups.md`.
