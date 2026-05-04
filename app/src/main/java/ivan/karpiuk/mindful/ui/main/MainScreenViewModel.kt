@@ -2,15 +2,18 @@ package ivan.karpiuk.mindful.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import ivan.karpiuk.mindful.data.DataRepository
 import ivan.karpiuk.mindful.ui.main.MainScreenUiState.Success
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class MainScreenViewModel(dataRepository: DataRepository) : ViewModel() {
+@HiltViewModel
+class MainScreenViewModel @Inject constructor(dataRepository: DataRepository) : ViewModel() {
   val uiState: StateFlow<MainScreenUiState> =
     dataRepository.data
       .map<List<String>, MainScreenUiState>(::Success)

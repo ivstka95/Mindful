@@ -1,27 +1,22 @@
 package ivan.karpiuk.mindful.ui.main
 
 import ivan.karpiuk.mindful.data.DataRepository
-import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class MainScreenViewModelTest {
   @Test
-  fun uiState_initiallyLoading() = runTest {
-    val viewModel = MainScreenViewModel(FakeMyModelRepository())
-    assertEquals(viewModel.uiState.first(), MainScreenUiState.Loading)
-  }
-
-  @Test
-  fun uiState_onItemSaved_isDisplayed() = runTest {
-    val viewModel = MainScreenViewModel(FakeMyModelRepository())
-    assertEquals(viewModel.uiState.first(), MainScreenUiState.Loading)
-  }
+  fun uiState_initiallyLoading() =
+    runTest {
+      val viewModel = MainScreenViewModel(FakeDataRepository())
+      assertEquals(MainScreenUiState.Loading, viewModel.uiState.first())
+    }
 }
 
-private class FakeMyModelRepository : DataRepository {
+private class FakeDataRepository : DataRepository {
   override val data: Flow<List<String>> = flow { emit(listOf("Sample")) }
 }
