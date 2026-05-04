@@ -53,8 +53,9 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
 - `./gradlew :app:installDebug` — install on connected device/emulator (debug applicationId is `ivan.karpiuk.mindful.debug`)
 - `./gradlew test` — unit tests across all modules (JUnit 5 via `useJUnitPlatform()` configured in convention plugins)
 - `./gradlew :app:testDebugUnitTest` — `:app` unit tests only
+- `./gradlew check` — full quality gate: Android lint + detekt + ktlint + unit tests across all modules. detekt config at `config/detekt/detekt.yml`; ktlint config (2-space indent, max 140) at `.editorconfig`. Both wired via `subprojects {}` plugin reactors in the root `build.gradle.kts` (apply only after AGP/Kotlin plugins land, so Android source-set tasks register correctly).
+- `./gradlew ktlintFormat` — auto-fix ktlint violations.
 - Launch: `adb shell am start -n ivan.karpiuk.mindful.debug/ivan.karpiuk.mindful.MainActivity`
-- Static analysis (lint/detekt/ktlint) is **not yet wired**. ktlint runs only via the `scripts/format-on-edit.sh` PostToolUse hook.
 
 ## Knowledge sources (in priority order)
 - For Android platform: ALWAYS use `android docs search "<query>"` before web search.

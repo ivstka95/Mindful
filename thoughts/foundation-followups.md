@@ -2,13 +2,10 @@
 
 Tracked from the foundation hardening pass on 2026-05-04. None block day-to-day development; ordered by when they should land relative to feature work.
 
-## P1 — Do before feature work lands
+## P1 — Done
 
-### Wire static analysis
-- No `lint` / `detekt` / `ktlintCheck` Gradle tasks are wired. ktlint formats only via the `format-on-edit.sh` PostToolUse hook — there's no gate that fails CI on style or smell.
-- Why first: cheap to add now, expensive to backfill once thousands of lines exist. Shapes every PR from day one and prevents drift.
-- Action: add detekt + ktlint Gradle plugins (or detekt + Spotless) inside a convention plugin so `./gradlew check` runs them across all modules. Wire `lintDebug` into the same task graph.
-- Done when: `./gradlew check` runs lint + detekt + ktlintCheck across every module and fails on violations.
+### ~~Wire static analysis~~ — done 2026-05-04
+- detekt 1.23.7 + ktlint-gradle 14.2.0 + Android lint all wired through `subprojects {}` plugin reactors in root `build.gradle.kts`. Config at `config/detekt/detekt.yml` and `.editorconfig`. `./gradlew check` runs the full gate across every module and fails on violations. Verified by injecting a deliberate violation file (caught by both detekt and ktlint).
 
 ## P2 — Do just-in-time, when the first relevant code arrives
 
