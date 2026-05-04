@@ -1,9 +1,9 @@
-package com.example.mindful.ui.main
+package ivan.karpiuk.mindful.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mindful.data.DataRepository
-import com.example.mindful.ui.main.MainScreenUiState.Success
+import ivan.karpiuk.mindful.data.DataRepository
+import ivan.karpiuk.mindful.ui.main.MainScreenUiState.Success
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch

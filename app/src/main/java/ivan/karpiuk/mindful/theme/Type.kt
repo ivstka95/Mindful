@@ -1,4 +1,4 @@
-package com.example.mindful.theme
+package ivan.karpiuk.mindful.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

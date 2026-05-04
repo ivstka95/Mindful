@@ -1,6 +1,6 @@
-package com.example.mindful.ui.main
+package ivan.karpiuk.mindful.ui.main
 
-import com.example.mindful.data.DataRepository
+import ivan.karpiuk.mindful.data.DataRepository
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first

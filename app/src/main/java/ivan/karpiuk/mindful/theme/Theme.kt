@@ -1,4 +1,4 @@
-package com.example.mindful.theme
+package ivan.karpiuk.mindful.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

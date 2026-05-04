@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.mindful.android.application)
     alias(libs.plugins.mindful.android.library.compose)
     alias(libs.plugins.mindful.android.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {

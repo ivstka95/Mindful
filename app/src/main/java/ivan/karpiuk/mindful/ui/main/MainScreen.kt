@@ -1,4 +1,4 @@
-package com.example.mindful.ui.main
+package ivan.karpiuk.mindful.ui.main
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
@@ -9,8 +9,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavKey
-import com.example.mindful.data.DefaultDataRepository
-import com.example.mindful.theme.MyApplicationTheme
+import ivan.karpiuk.mindful.data.DefaultDataRepository
+import ivan.karpiuk.mindful.theme.MyApplicationTheme
 
 @Composable
 fun MainScreen(

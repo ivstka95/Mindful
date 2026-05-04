@@ -1,4 +1,4 @@
-package com.example.mindful.theme
+package ivan.karpiuk.mindful.theme
 
 import androidx.compose.ui.graphics.Color
 
