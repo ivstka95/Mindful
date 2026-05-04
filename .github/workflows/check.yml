@@ -11,6 +11,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # gitleaks-action has no Node 24 release yet; opt the v2 action into Node 24.
+          # Drop this once gitleaks/gitleaks-action ships v3.
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
   check:
     name: ./gradlew check
     runs-on: ubuntu-latest
