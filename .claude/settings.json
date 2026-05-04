@@ -16,7 +16,11 @@
     "deny": [
       "Bash(rm -rf *)",
       "Bash(git push --force *)",
-      "Bash(git push -f *)"
+      "Bash(git push -f *)",
+      "Bash(git push origin main*)",
+      "Bash(git push origin main:*)",
+      "Bash(git push * main*)",
+      "Bash(git push * main:*)"
     ]
   },
   "hooks": {
