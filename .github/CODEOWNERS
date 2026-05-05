@@ -1,0 +1,28 @@
+# CODEOWNERS for Mindful
+# https://docs.github.com/en/repositories/managing-your-repositories-settings-and-features/customizing-your-repository/about-code-owners
+#
+# Each line is a file pattern followed by one or more owners.
+# Order matters — the LAST matching pattern takes precedence.
+
+# Default owner: catches everything not matched below
+*       @ivstka95
+
+# Build configuration
+/build-logic/                @ivstka95
+/gradle/                     @ivstka95
+/gradle.properties           @ivstka95
+/settings.gradle.kts         @ivstka95
+/*.gradle.kts                @ivstka95
+
+# CI / GitHub configuration
+/.github/                    @ivstka95
+/.pre-commit-config.yaml     @ivstka95
+/.editorconfig               @ivstka95
+
+# Quality config
+/config/detekt/              @ivstka95
+
+# Documentation
+*.md                         @ivstka95
+/CLAUDE.md                   @ivstka95
+/README.md                   @ivstka95
