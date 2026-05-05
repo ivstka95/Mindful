@@ -4,14 +4,16 @@ plugins {
 
 group = "ivan.karpiuk.mindful.buildlogic"
 
+val jdkTarget = libs.versions.jdkTarget.get()
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.toVersion(jdkTarget)
+    targetCompatibility = JavaVersion.toVersion(jdkTarget)
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(jdkTarget)
     }
 }
 

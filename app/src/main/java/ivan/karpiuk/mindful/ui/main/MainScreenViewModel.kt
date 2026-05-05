@@ -13,18 +13,26 @@ import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
-class MainScreenViewModel @Inject constructor(dataRepository: DataRepository) : ViewModel() {
-  val uiState: StateFlow<MainScreenUiState> =
-    dataRepository.data
-      .map<List<String>, MainScreenUiState>(::Success)
-      .catch { emit(MainScreenUiState.Error(it)) }
-      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState.Loading)
-}
+class MainScreenViewModel
+    @Inject
+    constructor(
+        dataRepository: DataRepository,
+    ) : ViewModel() {
+        val uiState: StateFlow<MainScreenUiState> =
+            dataRepository.data
+                .map<List<String>, MainScreenUiState>(::Success)
+                .catch { emit(MainScreenUiState.Error(it)) }
+                .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MainScreenUiState.Loading)
+    }
 
 sealed interface MainScreenUiState {
-  object Loading : MainScreenUiState
+    object Loading : MainScreenUiState
 
-  data class Error(val throwable: Throwable) : MainScreenUiState
+    data class Error(
+        val throwable: Throwable,
+    ) : MainScreenUiState
 
-  data class Success(val data: List<String>) : MainScreenUiState
+    data class Success(
+        val data: List<String>,
+    ) : MainScreenUiState
 }

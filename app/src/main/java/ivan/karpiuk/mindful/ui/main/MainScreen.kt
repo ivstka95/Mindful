@@ -13,42 +13,49 @@ import ivan.karpiuk.mindful.theme.MindfulTheme
 
 @Composable
 fun MainScreen(
-  @Suppress("UnusedParameter") onItemClick: (NavKey) -> Unit,
-  modifier: Modifier = Modifier,
-  viewModel: MainScreenViewModel = hiltViewModel(),
+    @Suppress("UnusedParameter") onItemClick: (NavKey) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: MainScreenViewModel = hiltViewModel(),
 ) {
-  val state by viewModel.uiState.collectAsStateWithLifecycle()
-  when (state) {
-    MainScreenUiState.Loading -> {
-      // Blank
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    when (state) {
+        MainScreenUiState.Loading -> {
+            // Blank
+        }
+        is MainScreenUiState.Success -> {
+            MainScreen(data = (state as MainScreenUiState.Success).data, modifier = modifier)
+        }
+        is MainScreenUiState.Error -> {
+            Text("Error loading data: ${(state as MainScreenUiState.Error).throwable.message}")
+        }
     }
-    is MainScreenUiState.Success -> {
-      MainScreen(data = (state as MainScreenUiState.Success).data, modifier = modifier)
-    }
-    is MainScreenUiState.Error -> {
-      Text("Error loading data: ${(state as MainScreenUiState.Error).throwable.message}")
-    }
-  }
 }
 
 @Composable
-internal fun MainScreen(data: List<String>, modifier: Modifier = Modifier) {
-  Column(modifier) { data.forEach { Greeting(it) } }
+@Suppress("UnstableCollections") // Scaffolding placeholder; switch to ImmutableList when real data lands.
+internal fun MainScreen(
+    data: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier) { data.forEach { Greeting(it) } }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-  Text(text = "Hello $name!", modifier = modifier)
+fun Greeting(
+    name: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(text = "Hello $name!", modifier = modifier)
 }
 
 @Preview(showBackground = true)
 @Composable
-fun MainScreenPreview() {
-  MindfulTheme { MainScreen(listOf("Android")) }
+private fun MainScreenPreview() {
+    MindfulTheme { MainScreen(listOf("Android")) }
 }
 
 @Preview(showBackground = true, widthDp = 340)
 @Composable
-fun MainScreenPortraitPreview() {
-  MindfulTheme { MainScreen(listOf("Android")) }
+private fun MainScreenPortraitPreview() {
+    MindfulTheme { MainScreen(listOf("Android")) }
 }

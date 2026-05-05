@@ -9,13 +9,14 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class MainScreenViewModelTest {
-  @Test
-  fun uiState_initiallyLoading() = runTest {
-    val viewModel = MainScreenViewModel(FakeDataRepository())
-    assertEquals(MainScreenUiState.Loading, viewModel.uiState.first())
-  }
+    @Test
+    fun uiState_initiallyLoading() =
+        runTest {
+            val viewModel = MainScreenViewModel(FakeDataRepository())
+            assertEquals(MainScreenUiState.Loading, viewModel.uiState.first())
+        }
 }
 
 private class FakeDataRepository : DataRepository {
-  override val data: Flow<List<String>> = flow { emit(listOf("Sample")) }
+    override val data: Flow<List<String>> = flow { emit(listOf("Sample")) }
 }

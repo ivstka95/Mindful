@@ -29,31 +29,40 @@ subprojects {
                 basePath = rootProject.projectDir.absolutePath
             }
 
+            dependencies {
+                // Only Compose-specific rules; ktlint is the dedicated formatter
+                // (detekt-formatting ships an older ktlint engine that disagrees with ours).
+                add("detektPlugins", rootProject.libs.detekt.rules.compose)
+            }
+
             extensions.configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
-                version.set("1.3.1")
+                version.set(rootProject.libs.versions.ktlint.get())
                 android.set(true)
                 ignoreFailures.set(false)
+                outputToConsole.set(true)
+                outputColorName.set("RED")
                 reporters {
                     reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
                     reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+                    reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.SARIF)
                 }
                 filter {
-                    exclude { it.file.path.contains("/build/") }
+                    exclude { it.file.path.contains("/build/") || it.file.path.contains("/generated/") }
                 }
             }
 
             tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
-                jvmTarget = "17"
+                jvmTarget = rootProject.libs.versions.jdkTarget.get()
                 reports {
                     html.required.set(true)
                     xml.required.set(true)
+                    sarif.required.set(true)
                     txt.required.set(false)
-                    sarif.required.set(false)
                     md.required.set(false)
                 }
             }
             tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach {
-                jvmTarget = "17"
+                jvmTarget = rootProject.libs.versions.jdkTarget.get()
             }
         }
     }

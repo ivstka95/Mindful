@@ -1,8 +1,8 @@
 plugins {
-  alias(libs.plugins.mindful.jvm.library)
+    alias(libs.plugins.mindful.jvm.library)
 }
 
 dependencies {
-  implementation(libs.kotlinx.datetime)
-  implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.coroutines.core)
 }

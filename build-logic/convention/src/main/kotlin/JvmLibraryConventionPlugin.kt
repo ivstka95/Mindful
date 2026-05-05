@@ -14,18 +14,21 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
         with(target) {
             pluginManager.apply("org.jetbrains.kotlin.jvm")
 
+            val libs = libs()
+            val jdkTarget = libs.findVersion("jdkTarget").get().requiredVersion
+            val javaVersion = JavaVersion.toVersion(jdkTarget)
+
             extensions.configure<JavaPluginExtension> {
-                sourceCompatibility = JavaVersion.VERSION_17
-                targetCompatibility = JavaVersion.VERSION_17
+                sourceCompatibility = javaVersion
+                targetCompatibility = javaVersion
             }
 
             extensions.configure<KotlinJvmExtension> {
                 compilerOptions {
-                    jvmTarget.set(JvmTarget.JVM_17)
+                    jvmTarget.set(JvmTarget.fromTarget(jdkTarget))
                 }
             }
 
-            val libs = libs()
             dependencies {
                 add("testImplementation", libs.findLibrary("junit-jupiter").get())
                 add("testImplementation", libs.findLibrary("mockk").get())

@@ -1,5 +1,8 @@
+# https://editorconfig.org/
+# Top-most EditorConfig file
 root = true
 
+# All files
 [*]
 charset = utf-8
 end_of_line = lf
@@ -8,16 +11,36 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 4
 
-[*.{kt,kts}]
-indent_size = 2
-ktlint_code_style = intellij_idea
-ktlint_standard_function-naming = disabled
-ktlint_standard_property-naming = disabled
-ktlint_standard_no-empty-first-line-in-class-body = disabled
+# Kotlin and Java
+[*.{kt,kts,java}]
+indent_size = 4
 max_line_length = 140
+ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ktlint_function_naming_ignore_when_annotated_with = Composable, Test, ParameterizedTest, RepeatedTest, TestFactory
 
-[*.{json,yml,yaml,toml,xml,gradle,pro}]
+# XML (Android resources, manifests)
+[*.xml]
+indent_size = 4
+
+# YAML (workflows, pre-commit config)
+[*.{yml,yaml}]
 indent_size = 2
 
-[Makefile]
-indent_style = tab
+# TOML (libs.versions.toml)
+[*.toml]
+indent_size = 4
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 2
+
+# JSON
+[*.json]
+indent_size = 2
+
+# Gradle scripts
+[*.gradle.kts]
+indent_size = 4
