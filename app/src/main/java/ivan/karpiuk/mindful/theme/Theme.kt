@@ -17,21 +17,25 @@ private val DarkColorScheme = darkColorScheme(primary = Purple80, secondary = Pu
 private val LightColorScheme = lightColorScheme(primary = Purple40, secondary = PurpleGrey40, tertiary = Pink40)
 
 @Composable
-fun MindfulTheme(darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = true, content: @Composable () -> Unit) {
-  val colorScheme =
-    when {
-      dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> dynamicColorScheme(darkTheme)
-      darkTheme -> DarkColorScheme
-      else -> LightColorScheme
-    }
+fun MindfulTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    dynamicColor: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    val colorScheme =
+        when {
+            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> dynamicColorScheme(darkTheme)
+            darkTheme -> DarkColorScheme
+            else -> LightColorScheme
+        }
 
-  MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
+    MaterialTheme(colorScheme = colorScheme, typography = Typography, content = content)
 }
 
 // Caller guards this with Build.VERSION.SDK_INT >= S; lint can't propagate that across the call boundary.
 @SuppressLint("NewApi")
 @Composable
 private fun dynamicColorScheme(darkTheme: Boolean): ColorScheme {
-  val context = LocalContext.current
-  return if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    val context = LocalContext.current
+    return if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
 }

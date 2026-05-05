@@ -84,7 +84,7 @@ adb shell am start -n ivan.karpiuk.mindful.debug/ivan.karpiuk.mindful.MainActivi
 
 ## Quality gates
 
-- **Static analysis:** detekt (`config/detekt/detekt.yml`) + ktlint (`.editorconfig`, 2-space indent, max 140), wired via `subprojects {}` reactors in the root `build.gradle.kts`.
+- **Static analysis:** detekt (`config/detekt/detekt.yml`) + ktlint (`.editorconfig`, 4-space indent, max 140), wired via `subprojects {}` reactors in the root `build.gradle.kts`. Detekt pulls in Compose-specific rules from [`io.nlopez.compose.rules:detekt`](https://mrmans0n.github.io/compose-rules/) (Material 2 ban, `ModifierMissing`, `RememberMissing`, `UnstableCollections`, `PreviewPublic`, etc.) and the `ForbiddenImport` rule blocks `androidx.compose.material.**`, `java.time.**`, `java.util.Date`, `java.text.SimpleDateFormat`.
 - **Lint:** Android Lint runs as part of `./gradlew check`.
 
 ### Pre-commit hooks
@@ -97,8 +97,10 @@ pre-commit install
 
 Hooks:
 
-1. **gitleaks** — scans staged files for secrets.
-2. **gradle-static-analysis** — runs `./gradlew detekt ktlintCheck` whenever a `.kt`/`.kts` file is staged (~5s warm daemon, ~30s cold; skipped when no Kotlin files are staged).
+1. **pre-commit-hooks v6 file-hygiene suite** — trailing whitespace, EOF newline, YAML/TOML/XML/JSON syntax, merge-conflict markers, files larger than 500KB, private keys, mixed line endings.
+2. **gitleaks** — scans staged files for secrets.
+3. **forbid-main-commit** — rejects commits while `HEAD` is on `main`/`master` (override with `--no-verify` for emergency hotfixes only).
+4. **gradle-static-analysis** — runs `./gradlew detekt ktlintCheck` whenever a `.kt`/`.kts` file is staged (~5s warm daemon, ~30s cold; skipped when no Kotlin files are staged).
 
 Both `gitleaks` and `pre-commit` are available via Homebrew.
 

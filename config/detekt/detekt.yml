@@ -23,6 +23,17 @@ complexity:
     threshold: 20
 
 style:
+  ForbiddenImport:
+    active: true
+    imports:
+      - value: 'androidx.compose.material.**'
+        reason: 'Material 2 is forbidden. Use androidx.compose.material3.**.'
+      - value: 'java.time.**'
+        reason: 'java.time is forbidden by CLAUDE.md. Use kotlinx.datetime.'
+      - value: 'java.util.Date'
+        reason: 'Use kotlinx.datetime.Instant or LocalDateTime.'
+      - value: 'java.text.SimpleDateFormat'
+        reason: 'Use kotlinx.datetime formatting.'
   MagicNumber:
     excludes:
       - '**/*Test.kt'
@@ -71,3 +82,55 @@ empty-blocks:
   EmptyFunctionBlock:
     active: true
     ignoreOverridden: true
+
+# Compose-specific rules from io.nlopez.compose.rules
+# Documentation: https://mrmans0n.github.io/compose-rules/
+Compose:
+  ComposableAnnotationNaming:
+    active: true
+  ComposableNaming:
+    active: true
+  ComposableParamOrder:
+    active: true
+  CompositionLocalAllowlist:
+    active: false
+  CompositionLocalNaming:
+    active: true
+  ContentEmitterReturningValues:
+    active: true
+  Material2:
+    active: true
+  ModifierComposed:
+    active: true
+  ModifierMissing:
+    active: true
+  ModifierNaming:
+    active: true
+  ModifierNotUsedAtRoot:
+    active: true
+  ModifierReused:
+    active: true
+  ModifierWithoutDefault:
+    active: true
+  MultipleEmitters:
+    active: true
+  MutableParams:
+    active: true
+  ParameterNaming:
+    active: true
+  PreviewAnnotationNaming:
+    active: true
+  PreviewNaming:
+    active: true
+  PreviewPublic:
+    active: true
+  RememberContentMissing:
+    active: true
+  RememberMissing:
+    active: true
+  UnstableCollections:
+    active: true
+  ViewModelForwarding:
+    active: true
+  ViewModelInjection:
+    active: true

@@ -15,6 +15,8 @@ internal fun Project.libs(): VersionCatalog = extensions.getByType<VersionCatalo
 /** Configure the base Kotlin/Android settings shared by app and library modules. */
 internal fun Project.configureKotlinAndroid(commonExtension: CommonExtension) {
     val libs = libs()
+    val jdkTarget = libs.findVersion("jdkTarget").get().requiredVersion
+    val javaVersion = JavaVersion.toVersion(jdkTarget)
     commonExtension.apply {
         compileSdk =
             libs
@@ -33,15 +35,15 @@ internal fun Project.configureKotlinAndroid(commonExtension: CommonExtension) {
         }
 
         compileOptions.apply {
-            sourceCompatibility = JavaVersion.VERSION_17
-            targetCompatibility = JavaVersion.VERSION_17
+            sourceCompatibility = javaVersion
+            targetCompatibility = javaVersion
             isCoreLibraryDesugaringEnabled = false
         }
     }
 
     extensions.configure<KotlinAndroidProjectExtension> {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.fromTarget(jdkTarget))
             allWarningsAsErrors.set(false)
             freeCompilerArgs.addAll(
                 "-opt-in=kotlin.RequiresOptIn",

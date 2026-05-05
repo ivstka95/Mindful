@@ -4,6 +4,9 @@ targetSdk = "36"
 minSdk = "26"
 androidGradlePlugin = "9.1.1"
 detekt = "1.23.7"
+detektCompose = "0.5.8"
+jdkTarget = "17"
+ktlint = "1.3.1"
 ktlintGradle = "14.2.0"
 androidxCore = "1.18.0"
 androidxLifecycle = "2.10.0"
@@ -32,6 +35,7 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 ksp-gradle-plugin = { module = "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
 hilt-gradle-plugin = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 androidx-room-gradle-plugin = { module = "androidx.room:room-gradle-plugin", version.ref = "room" }
+detekt-rules-compose = { module = "io.nlopez.compose.rules:detekt", version.ref = "detektCompose" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
