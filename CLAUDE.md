@@ -15,7 +15,7 @@ Repository: (to be set up)
 - AccessibilityService for foreground app detection and overlay
 - RevenueCat (Phase 2) for subscriptions
 - KMP-ready: `:core:domain` is pure Kotlin (`mindful.jvm.library`), zero Android imports
-- AGP 9.1.1, Gradle 9.3.1, compileSdk 36, targetSdk 36, minSdk 26
+- AGP 9.2.1, Gradle 9.5.0, compileSdk 36, targetSdk 36, minSdk 26
 - Toolchains: bytecode target is JDK 17 (Kotlin `JvmTarget.JVM_17` + Java `sourceCompatibility/targetCompatibility = VERSION_17`); the Gradle daemon itself runs on JBR 21, pinned in `gradle/gradle-daemon-jvm.properties` and auto-provisioned via the `org.gradle.toolchains.foojay-resolver-convention` plugin in `settings.gradle.kts` — no manual JDK install required.
 - `build-logic/` convention plugins (NowInAndroid pattern), exposed via the version catalog: `mindful.android.application`, `mindful.android.library`, `mindful.android.library.compose`, `mindful.android.feature`, `mindful.android.hilt`, `mindful.android.room`, `mindful.jvm.library`. The Android conventions auto-add `testImplementation` (JUnit 5 + MockK + Turbine + coroutines-test) and `androidTestImplementation` (test runner + ext-junit), and configure `useJUnitPlatform()` for unit-test tasks — modules don't redeclare these.
 
