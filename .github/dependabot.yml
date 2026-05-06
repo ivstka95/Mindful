@@ -1,0 +1,68 @@
+version: 2
+
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Tbilisi
+    open-pull-requests-limit: 10
+    rebase-strategy: auto
+    commit-message:
+      prefix: "chore(deps)"
+    labels:
+      - dependencies
+      - gradle
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      compose:
+        patterns:
+          - "androidx.compose*"
+        update-types: [minor, patch]
+      hilt:
+        patterns:
+          - "com.google.dagger*"
+        update-types: [minor, patch]
+      room:
+        patterns:
+          - "androidx.room*"
+        update-types: [minor, patch]
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "org.jetbrains.kotlinx*"
+          - "io.gitlab.arturbosch.detekt*"
+        update-types: [minor, patch]
+      android-build:
+        patterns:
+          - "com.android.tools.build*"
+        update-types: [minor, patch]
+      androidx-misc:
+        patterns:
+          - "androidx.*"
+        exclude-patterns:
+          - "androidx.compose*"
+          - "androidx.room*"
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Tbilisi
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(ci)"
+    labels:
+      - dependencies
+      - ci
+    groups:
+      actions-all:
+        patterns: ["*"]
+        update-types: [minor, patch]
