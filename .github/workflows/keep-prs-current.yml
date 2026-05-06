@@ -26,71 +26,57 @@ jobs:
         run: |
           set -euo pipefail
 
-          all_prs=$(gh pr list --repo "$GITHUB_REPOSITORY" \
+          prs=$(gh pr list --repo "$GITHUB_REPOSITORY" \
             --base main --state open \
             --json number,author,title \
             --jq '.[] | select(.author.login != "app/dependabot") | "\(.number) \(.title)"')
 
-          if [[ -z "$all_prs" ]]; then
+          if [[ -z "$prs" ]]; then
             echo "No non-Dependabot PRs open — nothing to update."
           else
-            echo "Non-Dependabot PRs to update:"
-            echo "$all_prs" | while IFS=' ' read -r pr rest; do
-              echo "  PR #$pr: $rest"
-            done
-
-            echo "$all_prs" | while IFS=' ' read -r pr rest; do
-              echo "Calling update-branch for PR #$pr..."
-              response=$(gh api --method PUT \
+            while IFS=' ' read -r pr rest; do
+              if gh api --method PUT \
                 --header "Accept: application/vnd.github+json" \
-                "repos/$GITHUB_REPOSITORY/pulls/$pr/update-branch" 2>&1) && rc=0 || rc=$?
-              if [[ $rc -eq 0 ]]; then
-                echo "  PR #$pr: update requested"
+                "repos/$GITHUB_REPOSITORY/pulls/$pr/update-branch" >/dev/null 2>&1; then
+                echo "PR #$pr: update requested — $rest"
               else
-                echo "  PR #$pr: skipped — $response"
+                echo "PR #$pr: skipped (conflicts, already current, or not updateable) — $rest"
               fi
-            done
+            done <<< "$prs"
           fi
-
-      # mergeStateStatus is computed asynchronously by GitHub — wait a bit so
-      # PRs that just became BEHIND after the main push are correctly labelled.
-      - name: Wait for GitHub to compute merge state
-        run: sleep 15
 
       # @dependabot rebase triggers a server-side rebase by the Dependabot bot.
       # For BEHIND PRs it simply rebases on top of main.
       # For DIRTY PRs (conflicts) Dependabot attempts auto-resolution; if it
       # can't, it comments "unable to rebase" and leaves the PR for manual review.
-      # We filter to DIRTY|BEHIND to avoid spamming clean PRs with rebase comments.
-      # Pairs with rebase-strategy: auto in dependabot.yml, which handles the
-      # common BEHIND case proactively — this is the safety net.
+      #
+      # We use the compare API (ahead_by = commits in main not in the PR branch)
+      # instead of mergeStateStatus, which GitHub computes asynchronously and
+      # can stay UNKNOWN indefinitely after a push to main.
       - name: Comment @dependabot rebase on stale Dependabot PRs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
 
-          all_dep_prs=$(gh pr list --repo "$GITHUB_REPOSITORY" --author "app/dependabot" \
+          dep_prs=$(gh pr list --repo "$GITHUB_REPOSITORY" --author "app/dependabot" \
             --state open \
-            --json number,title,mergeStateStatus \
-            --jq '.[] | "\(.number) \(.mergeStateStatus) \(.title)"')
+            --json number,title,headRefName \
+            --jq '.[] | "\(.number) \(.headRefName) \(.title)"')
 
-          if [[ -z "$all_dep_prs" ]]; then
+          if [[ -z "$dep_prs" ]]; then
             echo "No Dependabot PRs open."
           else
-            echo "All Dependabot PRs and their merge state:"
-            echo "$all_dep_prs" | while IFS=' ' read -r pr status rest; do
-              echo "  PR #$pr [$status]: $rest"
-            done
-
-            stale=$(echo "$all_dep_prs" | awk '$2 == "DIRTY" || $2 == "BEHIND" {print $1}')
-            if [[ -z "$stale" ]]; then
-              echo "All Dependabot PRs are up-to-date — nothing to rebase."
-            else
-              echo "Requesting rebase for stale Dependabot PRs:"
-              while read -r pr; do
-                echo "  Commenting '@dependabot rebase' on PR #$pr"
+            while IFS=' ' read -r pr branch rest; do
+              behind=$(gh api "repos/$GITHUB_REPOSITORY/compare/${branch}...main" \
+                --jq '.ahead_by' 2>/dev/null || echo "error")
+              if [[ "$behind" == "error" ]]; then
+                echo "PR #$pr: could not compare branch — skipping ($rest)"
+              elif [[ "$behind" -gt 0 ]]; then
+                echo "PR #$pr: ${behind} commit(s) behind main — requesting rebase ($rest)"
                 gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "@dependabot rebase"
-              done <<< "$stale"
-            fi
+              else
+                echo "PR #$pr: up-to-date — skipping ($rest)"
+              fi
+            done <<< "$dep_prs"
           fi
