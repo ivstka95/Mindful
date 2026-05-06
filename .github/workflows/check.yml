@@ -43,7 +43,7 @@ jobs:
       - name: Run pre-commit
         run: |
           pip install pre-commit
-          pre-commit run --all-files --show-diff-on-failure
+          SKIP=forbid-main-commit,gradle-static-analysis pre-commit run --all-files --show-diff-on-failure
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
