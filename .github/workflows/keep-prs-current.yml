@@ -1,0 +1,60 @@
+name: keep-prs-current
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: keep all open PRs current with main
+    runs-on: ubuntu-latest
+    steps:
+      # The GitHub update-branch API does a server-side merge of main into the
+      # PR branch — equivalent to clicking "Update branch" on the PR page.
+      # PRs with conflicts return a non-2xx status; errors are swallowed so
+      # conflicting PRs are silently skipped (human resolution required).
+      # Dependabot-owned branches are excluded: GitHub rejects update-branch
+      # calls on them regardless of who makes the request.
+      - name: Update non-Dependabot PRs via update-branch API
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr list --repo "$GITHUB_REPOSITORY" \
+            --base main --state open \
+            --json number,author \
+            --jq '.[] | select(.author.login != "app/dependabot") | .number' \
+          | while read -r pr; do
+              echo "Requesting update for PR #$pr"
+              if ! gh api --method PUT \
+                  --header "Accept: application/vnd.github+json" \
+                  "repos/$GITHUB_REPOSITORY/pulls/$pr/update-branch" >/dev/null 2>&1; then
+                echo "  skipped (conflicts, already up-to-date, or not updateable)"
+              fi
+            done
+
+      # @dependabot rebase triggers a server-side rebase by the Dependabot bot.
+      # For BEHIND PRs it simply rebases on top of main.
+      # For DIRTY PRs (conflicts) Dependabot attempts auto-resolution; if it
+      # can't, it comments "unable to rebase" and leaves the PR for manual review.
+      # We filter to DIRTY|BEHIND to avoid spamming clean PRs with rebase comments.
+      # Pairs with rebase-strategy: auto in dependabot.yml, which handles the
+      # common BEHIND case proactively — this is the safety net.
+      - name: Comment @dependabot rebase on stale Dependabot PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr list --repo "$GITHUB_REPOSITORY" --author "app/dependabot" \
+            --state open \
+            --json number,mergeStateStatus \
+            --jq '.[] | select(.mergeStateStatus == "DIRTY" or .mergeStateStatus == "BEHIND") | .number' \
+          | while read -r pr; do
+              echo "Requesting rebase for PR #$pr"
+              gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "@dependabot rebase"
+            done
