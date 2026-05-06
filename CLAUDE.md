@@ -99,9 +99,9 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
   - Both jobs must pass before a PR can merge (enforced by branch protection, including for admins).
   - To diagnose a CI failure: `gh run view --log-failed`. Reproduce locally: `pre-commit run --all-files` or `./gradlew check :app:assembleDebug`.
   - Useful commands: `gh run list`, `gh run watch`, `gh pr checks --watch`.
-- Auto-rebase / auto-update workflows (run on push to `main`):
-  - `.github/workflows/dependabot-rebase.yml` — comments `@dependabot rebase` on every Dependabot PR whose `mergeStateStatus` is `DIRTY`, so conflicts with `main` get resolved without manual intervention. Pairs with `rebase-strategy: auto` in `.github/dependabot.yml`, which keeps non-conflicting Dependabot PRs rebased automatically.
-  - `.github/workflows/pr-update-branch.yml` — calls the GitHub `PUT /pulls/{n}/update-branch` API on every **non-Dependabot** open PR targeting `main`, the same operation as clicking the "Update branch" button on the PR page. Skips Dependabot (handled above; the API can't update Dependabot-owned branches anyway). Errors per-PR are swallowed (already up-to-date, conflicts, etc.); the job never fails the rest of the queue.
+- Auto-update workflow (`.github/workflows/keep-prs-current.yml`, runs on push to `main`): keeps every open PR targeting `main` current, in two steps:
+  1. **Non-Dependabot PRs** — calls `PUT /pulls/{n}/update-branch` (server-side merge of main, same as clicking "Update branch"). PRs with conflicts are silently skipped; human resolution required.
+  2. **Dependabot PRs** — comments `@dependabot rebase` on any PR with `mergeStateStatus == DIRTY or BEHIND`. For conflicts Dependabot attempts auto-resolution; if it can't, it comments and leaves the PR for manual review. Pairs with `rebase-strategy: auto` in `.github/dependabot.yml`.
 - After 3 failed bug-fix attempts, STOP. Run `/debug` for root-cause analysis.
 - Keep `/context` <= 60%. At 60%+, `/compact focus on <topic>`.
 - Open follow-ups for the foundation are tracked in `thoughts/foundation-followups.md`.
