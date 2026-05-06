@@ -93,7 +93,12 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
   - PostToolUse on Edit/Write → `scripts/format-on-edit.sh` (ktlint format)
   - PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard within the CLI session)
 - Git pre-commit hooks via [pre-commit](https://pre-commit.com/) (`.pre-commit-config.yaml`). Contributors run `pre-commit install` once after cloning. Hooks: (1) `pre-commit-hooks` v6 file-hygiene suite (trailing whitespace, EOF newline, YAML/TOML/XML/JSON syntax, merge-conflict markers, large files >500KB, private keys, mixed line endings); (2) `gitleaks` scans staged files for secrets; (3) `forbid-main-commit` rejects commits while `HEAD` is on `main`/`master` (override with `--no-verify` for emergency hotfixes); (4) `gradle-static-analysis` runs `./gradlew detekt ktlintCheck` whenever a `.kt`/`.kts` file is staged (~5s warm daemon, ~30s cold; skipped when no Kotlin files staged). Both `gitleaks` and `pre-commit` are available via Homebrew.
-- CI: `.github/workflows/check.yml` runs full `./gradlew check` (lint + detekt + ktlint + tests) on push to `main` and on PRs targeting `main`. Reports uploaded as artifacts on failure.
+- CI: `.github/workflows/check.yml`. Triggered on push to `main`, PRs targeting `main`, and manual dispatch. Two parallel jobs:
+  - **code quality** (job id: `pre-commit`, timeout: 10 min): runs all `.pre-commit-config.yaml` hooks — gitleaks (full history via `fetch-depth: 0`), actionlint, file hygiene, `gradle-static-analysis`.
+  - **build** (job id: `gradle`, timeout: 30 min): `./gradlew check` (ktlint + detekt + lint + tests) + `./gradlew :app:assembleDebug`. Gradle reports uploaded as artifacts on failure; debug APK uploaded on PR success.
+  - Both jobs must pass before a PR can merge (enforced by branch protection, including for admins).
+  - To diagnose a CI failure: `gh run view --log-failed`. Reproduce locally: `pre-commit run --all-files` or `./gradlew check :app:assembleDebug`.
+  - Useful commands: `gh run list`, `gh run watch`, `gh pr checks --watch`.
 - After 3 failed bug-fix attempts, STOP. Run `/debug` for root-cause analysis.
 - Keep `/context` <= 60%. At 60%+, `/compact focus on <topic>`.
 - Open follow-ups for the foundation are tracked in `thoughts/foundation-followups.md`.
