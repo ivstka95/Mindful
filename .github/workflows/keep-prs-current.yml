@@ -14,83 +14,21 @@ jobs:
     name: keep all open PRs current with main
     runs-on: ubuntu-latest
     steps:
-      # The GitHub update-branch API does a server-side merge of main into the
-      # PR branch — equivalent to clicking "Update branch" on the PR page.
-      # PRs with conflicts return a non-2xx status; errors are swallowed so
-      # conflicting PRs are silently skipped (human resolution required).
-      # Dependabot-owned branches are excluded: GitHub rejects update-branch
-      # calls on them regardless of who makes the request.
       - name: Update non-Dependabot PRs via update-branch API
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-
-          all_prs=$(gh pr list --repo "$GITHUB_REPOSITORY" \
+          gh pr list --repo "$GITHUB_REPOSITORY" \
             --base main --state open \
             --json number,author,title \
-            --jq '.[] | select(.author.login != "app/dependabot") | "\(.number) \(.title)"')
-
-          if [[ -z "$all_prs" ]]; then
-            echo "No non-Dependabot PRs open — nothing to update."
-          else
-            echo "Non-Dependabot PRs to update:"
-            echo "$all_prs" | while IFS=' ' read -r pr rest; do
-              echo "  PR #$pr: $rest"
-            done
-
-            echo "$all_prs" | while IFS=' ' read -r pr rest; do
-              echo "Calling update-branch for PR #$pr..."
-              response=$(gh api --method PUT \
-                --header "Accept: application/vnd.github+json" \
-                "repos/$GITHUB_REPOSITORY/pulls/$pr/update-branch" 2>&1) && rc=0 || rc=$?
-              if [[ $rc -eq 0 ]]; then
-                echo "  PR #$pr: update requested"
+            --jq '.[] | select(.author.login != "app/dependabot") | "\(.number) \(.title)"' \
+          | while IFS=' ' read -r pr rest; do
+              if gh api --method PUT \
+                  --header "Accept: application/vnd.github+json" \
+                  "repos/$GITHUB_REPOSITORY/pulls/$pr/update-branch" >/dev/null 2>&1; then
+                echo "PR #$pr: updated — $rest"
               else
-                echo "  PR #$pr: skipped — $response"
+                echo "PR #$pr: skipped (conflict, already current, or not updateable) — $rest"
               fi
             done
-          fi
-
-      # mergeStateStatus is computed asynchronously by GitHub — wait a bit so
-      # PRs that just became BEHIND after the main push are correctly labelled.
-      - name: Wait for GitHub to compute merge state
-        run: sleep 15
-
-      # @dependabot rebase triggers a server-side rebase by the Dependabot bot.
-      # For BEHIND PRs it simply rebases on top of main.
-      # For DIRTY PRs (conflicts) Dependabot attempts auto-resolution; if it
-      # can't, it comments "unable to rebase" and leaves the PR for manual review.
-      # We filter to DIRTY|BEHIND to avoid spamming clean PRs with rebase comments.
-      # Pairs with rebase-strategy: auto in dependabot.yml, which handles the
-      # common BEHIND case proactively — this is the safety net.
-      - name: Comment @dependabot rebase on stale Dependabot PRs
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-
-          all_dep_prs=$(gh pr list --repo "$GITHUB_REPOSITORY" --author "app/dependabot" \
-            --state open \
-            --json number,title,mergeStateStatus \
-            --jq '.[] | "\(.number) \(.mergeStateStatus) \(.title)"')
-
-          if [[ -z "$all_dep_prs" ]]; then
-            echo "No Dependabot PRs open."
-          else
-            echo "All Dependabot PRs and their merge state:"
-            echo "$all_dep_prs" | while IFS=' ' read -r pr status rest; do
-              echo "  PR #$pr [$status]: $rest"
-            done
-
-            stale=$(echo "$all_dep_prs" | awk '$2 == "DIRTY" || $2 == "BEHIND" {print $1}')
-            if [[ -z "$stale" ]]; then
-              echo "All Dependabot PRs are up-to-date — nothing to rebase."
-            else
-              echo "Requesting rebase for stale Dependabot PRs:"
-              while read -r pr; do
-                echo "  Commenting '@dependabot rebase' on PR #$pr"
-                gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "@dependabot rebase"
-              done <<< "$stale"
-            fi
-          fi
