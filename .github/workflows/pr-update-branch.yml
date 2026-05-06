@@ -1,0 +1,38 @@
+name: pr-update-branch
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: update open PRs with main
+    runs-on: ubuntu-latest
+    steps:
+      # Dependabot PRs are owned by dependabot[bot] and can only be updated via
+      # `@dependabot rebase` (handled by dependabot-rebase.yml for DIRTY ones)
+      # or its own `rebase-strategy: auto`. Calling update-branch on them fails.
+      # Everything else gets a server-side merge of main via the GitHub API,
+      # the same operation as clicking "Update branch" on the PR page.
+      - name: Update non-Dependabot PRs targeting main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr list --repo "$GITHUB_REPOSITORY" \
+            --base main --state open \
+            --json number,author \
+            --jq '.[] | select(.author.login != "app/dependabot") | .number' \
+          | while read -r pr; do
+              echo "Requesting update for PR #$pr"
+              if ! gh api --method PUT \
+                  --header "Accept: application/vnd.github+json" \
+                  "repos/$GITHUB_REPOSITORY/pulls/$pr/update-branch" >/dev/null 2>&1; then
+                echo "  skipped (conflicts, already up-to-date, or not updateable)"
+              fi
+            done
