@@ -17,36 +17,15 @@ permissions:
   checks: write
 
 jobs:
-  # ────────────────────────────────────────────────────────────────────
-  # gitleaks: secret scanning across full git history
-  # ────────────────────────────────────────────────────────────────────
-  gitleaks:
-    name: gitleaks
+  pre-commit:
+    name: check code quality
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
-
-      - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  # ────────────────────────────────────────────────────────────────────
-  # pre-commit: run all .pre-commit-config.yaml hooks except local ones
-  # (ktlint, detekt, gradle-static-analysis, forbid-main-commit are
-  #  skipped — they run in the gradle job or are local-only)
-  # ────────────────────────────────────────────────────────────────────
-  pre-commit:
-    name: pre-commit hooks
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+          fetch-depth: 0   # gitleaks needs full history to scan old commits
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -61,32 +40,15 @@ jobs:
           restore-keys: |
             pre-commit-${{ runner.os }}-
 
-      - name: Run pre-commit (skip local Gradle hooks)
+      - name: Run pre-commit
         run: |
           pip install pre-commit
-          SKIP=ktlint,detekt,gradle-static-analysis,forbid-main-commit pre-commit run --all-files --show-diff-on-failure
+          SKIP=forbid-main-commit,gradle-static-analysis pre-commit run --all-files --show-diff-on-failure
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ────────────────────────────────────────────────────────────────────
-  # actionlint: validate workflow YAML files
-  # ────────────────────────────────────────────────────────────────────
-  actionlint:
-    name: actionlint
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Run actionlint
-        uses: docker://rhysd/actionlint:latest
-        with:
-          args: -color
-
-  # ────────────────────────────────────────────────────────────────────
-  # gradle: ktlint + detekt + lint + unit tests + assemble
-  # ────────────────────────────────────────────────────────────────────
   gradle:
-    name: gradle (check + assembleDebug)
+    name: build
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
