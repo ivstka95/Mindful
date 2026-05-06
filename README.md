@@ -106,7 +106,13 @@ Both `gitleaks` and `pre-commit` are available via Homebrew.
 
 ### Continuous integration
 
-`.github/workflows/check.yml` runs the full `./gradlew check` on pushes to `main` and on PRs targeting `main`. Reports are uploaded as artifacts on failure. A separate gitleaks job enforces secret scanning at PR/push time.
+`.github/workflows/check.yml` runs on pushes to `main`, PRs targeting `main`, and manual dispatch. Three jobs, all required by branch protection:
+
+| Job | Runs on | What it does |
+| --- | --- | --- |
+| `code quality` | all events | pre-commit hooks: gitleaks (full history), actionlint, file hygiene, detekt + ktlint |
+| `build` | all events | `./gradlew check :app:assembleDebug`; submits dependency graph to GitHub; uploads reports on failure, debug APK on PR success |
+| `dependency-review` | PRs only | runs after `build`; checks added/changed dependencies for high-severity CVEs and disallowed licenses; posts a summary comment on the PR |
 
 ## Privacy & Play policy
 
