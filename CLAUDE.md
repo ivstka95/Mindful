@@ -99,6 +99,9 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
   - Both jobs must pass before a PR can merge (enforced by branch protection, including for admins).
   - To diagnose a CI failure: `gh run view --log-failed`. Reproduce locally: `pre-commit run --all-files` or `./gradlew check :app:assembleDebug`.
   - Useful commands: `gh run list`, `gh run watch`, `gh pr checks --watch`.
+- Auto-update workflow (`.github/workflows/keep-prs-current.yml`, runs on push to `main`): keeps every open PR targeting `main` current, in two steps:
+  1. **Non-Dependabot PRs** — calls `PUT /pulls/{n}/update-branch` (server-side merge of main, same as clicking "Update branch"). PRs with conflicts are silently skipped; human resolution required.
+  2. **Dependabot PRs** — comments `@dependabot rebase` on any PR with `mergeStateStatus == DIRTY or BEHIND`. For conflicts Dependabot attempts auto-resolution; if it can't, it comments and leaves the PR for manual review. Pairs with `rebase-strategy: auto` in `.github/dependabot.yml`.
 - After 3 failed bug-fix attempts, STOP. Run `/debug` for root-cause analysis.
 - Keep `/context` <= 60%. At 60%+, `/compact focus on <topic>`.
 - Open follow-ups for the foundation are tracked in `thoughts/foundation-followups.md`.

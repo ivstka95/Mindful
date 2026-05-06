@@ -1,0 +1,34 @@
+name: keep-prs-current
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    name: keep all open PRs current with main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update non-Dependabot PRs via update-branch API
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh pr list --repo "$GITHUB_REPOSITORY" \
+            --base main --state open \
+            --json number,author,title \
+            --jq '.[] | select(.author.login != "app/dependabot") | "\(.number) \(.title)"' \
+          | while IFS=' ' read -r pr rest; do
+              if gh api --method PUT \
+                  --header "Accept: application/vnd.github+json" \
+                  "repos/$GITHUB_REPOSITORY/pulls/$pr/update-branch" >/dev/null 2>&1; then
+                echo "PR #$pr: updated — $rest"
+              else
+                echo "PR #$pr: skipped (conflict, already current, or not updateable) — $rest"
+              fi
+            done
