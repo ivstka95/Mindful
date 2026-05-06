@@ -18,7 +18,7 @@ A consumer-friendly Android app blocker. Pick the apps you want to limit, set pe
 | Blocking | AccessibilityService (foreground app detection + overlay) |
 | Time | `kotlinx.datetime` (never `java.time.*`) |
 | Subscriptions | RevenueCat (Phase 2) |
-| Build | AGP 9.1.1, Gradle 9.3.1 |
+| Build | AGP 9.2.1, Gradle 9.5.0 |
 
 The Gradle daemon runs on JBR 21 (pinned in `gradle/gradle-daemon-jvm.properties` and auto-provisioned via the foojay toolchain resolver) while bytecode targets JDK 17 — no manual JDK install required.
 
