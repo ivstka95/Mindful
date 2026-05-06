@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   pre-commit:
-    name: check code quality
+    name: code quality
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -43,7 +43,7 @@ jobs:
       - name: Run pre-commit
         run: |
           pip install pre-commit
-          SKIP=forbid-main-commit,gradle-static-analysis pre-commit run --all-files --show-diff-on-failure
+          pre-commit run --all-files --show-diff-on-failure
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
