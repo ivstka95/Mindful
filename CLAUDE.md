@@ -68,6 +68,14 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
 - We collect no user data off-device. Usage stats stay in local Room DB.
 - All blocking decisions deterministic and rule-based. No autonomous AI in AccessibilityService.
 
+## GitHub Actions rules
+- Every `uses:` reference MUST be pinned to a full 40-character commit SHA — never a tag (`@v4`), branch (`@main`), or any other mutable ref.
+- Always use the SHA of the **latest release**. Resolve it via:
+  1. `gh api repos/<owner>/<repo>/releases/latest --jq '.tag_name'`
+  2. `gh api repos/<owner>/<repo>/git/ref/tags/<tag> --jq '.object | {sha, type}'`
+  3. If `type` is `"tag"` (annotated), dereference: `gh api repos/<owner>/<repo>/git/tags/<sha> --jq '.object.sha'`
+- Write as: `uses: owner/action@<40-char-sha> # vX.Y.Z`
+
 ## Hard NOs
 - Never bypass Play's AccessibilityService restrictions.
 - Never call BillingClient directly; route through RevenueCat Purchases (Phase 2).
