@@ -101,10 +101,11 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
   - PostToolUse on Edit/Write → `scripts/format-on-edit.sh` (ktlint format)
   - PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard within the CLI session)
 - Git pre-commit hooks via [pre-commit](https://pre-commit.com/) (`.pre-commit-config.yaml`). Contributors run `pre-commit install` once after cloning. Hooks: (1) `pre-commit-hooks` v6 file-hygiene suite (trailing whitespace, EOF newline, YAML/TOML/XML/JSON syntax, merge-conflict markers, large files >500KB, private keys, mixed line endings); (2) `gitleaks` scans staged files for secrets; (3) `forbid-main-commit` rejects commits while `HEAD` is on `main`/`master` (override with `--no-verify` for emergency hotfixes); (4) `gradle-static-analysis` runs `./gradlew detekt ktlintCheck` whenever a `.kt`/`.kts` file is staged (~5s warm daemon, ~30s cold; skipped when no Kotlin files staged). Both `gitleaks` and `pre-commit` are available via Homebrew.
-- CI: `.github/workflows/check.yml`. Triggered on push to `main`, PRs targeting `main`, and manual dispatch. Two parallel jobs:
+- CI: `.github/workflows/check.yml`. Triggered on push to `main`, PRs targeting `main`, and manual dispatch. Three jobs:
   - **code quality** (job id: `pre-commit`, timeout: 10 min): runs all `.pre-commit-config.yaml` hooks — gitleaks (full history via `fetch-depth: 0`), actionlint, file hygiene, `gradle-static-analysis`.
-  - **build** (job id: `gradle`, timeout: 30 min): `./gradlew check` (ktlint + detekt + lint + tests) + `./gradlew :app:assembleDebug`. Gradle reports uploaded as artifacts on failure; debug APK uploaded on PR success.
-  - Both jobs must pass before a PR can merge (enforced by branch protection, including for admins).
+  - **build** (job id: `gradle`, timeout: 30 min): `./gradlew check` (ktlint + detekt + lint + tests) + `./gradlew :app:assembleDebug`. Submits the Gradle dependency graph to GitHub. Gradle reports uploaded as artifacts on failure; debug APK uploaded on PR success.
+  - **dependency-review** (job id: `dependency-review`, PRs only, `needs: gradle`): runs `actions/dependency-review-action` against the dependency graph submitted by the build job; fails on high-severity vulnerabilities or disallowed licenses; posts a summary comment on the PR.
+  - All three jobs must pass before a PR can merge (enforced by branch protection, including for admins).
   - To diagnose a CI failure: `gh run view --log-failed`. Reproduce locally: `pre-commit run --all-files` or `./gradlew check :app:assembleDebug`.
   - Useful commands: `gh run list`, `gh run watch`, `gh pr checks --watch`.
 - Auto-update workflow (`.github/workflows/keep-prs-current.yml`, runs on push to `main`): keeps every open PR targeting `main` current, in two steps:
