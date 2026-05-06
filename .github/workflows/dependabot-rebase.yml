@@ -1,0 +1,26 @@
+name: dependabot-rebase
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  rebase-conflicting:
+    name: rebase conflicting Dependabot PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rebase conflicting Dependabot PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr list --repo "$GITHUB_REPOSITORY" --author "app/dependabot" \
+            --json number,mergeStateStatus \
+            --jq '.[] | select(.mergeStateStatus == "DIRTY") | .number' \
+          | while read -r pr; do
+              echo "Requesting rebase for PR #$pr"
+              gh pr comment "$pr" --repo "$GITHUB_REPOSITORY" --body "@dependabot rebase"
+            done
