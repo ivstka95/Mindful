@@ -70,7 +70,7 @@ Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `pro
 
 ## GitHub Actions rules
 - Every `uses:` reference MUST be pinned to a full 40-character commit SHA — never a tag (`@v4`), branch (`@main`), or any other mutable ref.
-- Always use the SHA of the **latest release**. Resolve it via:
+- Always use the SHA of the **latest release** — verify this every time, even when copying a SHA from an existing file or the user's message (it may be outdated). Resolve it via:
   1. `gh api repos/<owner>/<repo>/releases/latest --jq '.tag_name'`
   2. `gh api repos/<owner>/<repo>/git/ref/tags/<tag> --jq '.object | {sha, type}'`
   3. If `type` is `"tag"` (annotated), dereference: `gh api repos/<owner>/<repo>/git/tags/<sha> --jq '.object.sha'`
