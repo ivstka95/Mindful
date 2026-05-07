@@ -17,8 +17,8 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 val libs = libs()
                 defaultConfig {
                     targetSdk = libs.findVersion("targetSdk").get().requiredVersion.toInt()
-                    versionCode = 1
-                    versionName = "0.1.0"
+                    versionCode = target.findProperty("VERSION_CODE")?.toString()?.toInt() ?: 1
+                    versionName = target.findProperty("VERSION_NAME")?.toString() ?: "0.1.0"
                     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
                 }
 
