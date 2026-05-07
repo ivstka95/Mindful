@@ -19,6 +19,11 @@ Tracked from the foundation hardening pass on 2026-05-04. None block day-to-day 
 - Sample-only — replace, not refactor in place. When the first real repository lands (e.g. `AppLimitRepository`, `UsageStatsRepository`), delete the sample and put the real one in the right module from the start.
 - No standalone task — folds into the first real-repo PR.
 
+### Harden `org.gradle.configuration-cache.problems` to `fail`
+- Currently set to `warn` to allow discovering incompatible tasks without blocking CI.
+- Trigger: zero configuration-cache warnings across a full `./gradlew check :app:assembleDebug` run.
+- Action: flip `org.gradle.configuration-cache.problems=warn` → `fail` in `gradle.properties` and verify CI stays green.
+
 ## P3 — Do before shipping, not before
 
 ### Validate release build end-to-end
