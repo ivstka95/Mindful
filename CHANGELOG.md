@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.2](https://github.com/ivstka95/Mindful/compare/v0.1.1...v0.1.2) (2026-05-07)
+
+
+### 🐛 Bug Fixes
+
+* **ci:** scope keep-prs-current permissions to job level ([#42](https://github.com/ivstka95/Mindful/issues/42)) ([baa3ec0](https://github.com/ivstka95/Mindful/commit/baa3ec0842dd445920733dea68acc28099b7f2f1))
+
+
+### 🔧 Chores
+
+* enable Gradle parallel, configuration cache, and incremental Kotlin compilation ([#40](https://github.com/ivstka95/Mindful/issues/40)) ([ef7dfa6](https://github.com/ivstka95/Mindful/commit/ef7dfa67849e38198ac95b266c3fa53bdc294234))
+
 ## [0.1.1](https://github.com/ivstka95/Mindful/compare/v0.1.0...v0.1.1) (2026-05-07)
 
 
