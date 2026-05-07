@@ -3,14 +3,14 @@
 A consumer-friendly Android app blocker. Users select apps, set per-app and total daily time limits, and the app blocks them via overlay when limits are reached. Freemium with subscription.
 
 Bundle ID: `ivan.karpiuk.mindful`
-Repository: (to be set up)
+Repository: https://github.com/ivstka95/Mindful
 
 ## Stack
-- Kotlin 2.3.20, Coroutines + Flow only (no LiveData, no RxJava)
-- Jetpack Compose via BOM 2026.03.01 + Material 3 (no XML layouts)
-- Jetpack Navigation 3 (`androidx.navigation3` 1.0.1) — type-safe `NavKey`s, requires `kotlin-serialization` plugin on any module declaring keys
+- Kotlin 2.3.21, Coroutines + Flow only (no LiveData, no RxJava)
+- Jetpack Compose via BOM 2026.05.00 + Material 3 (no XML layouts)
+- Jetpack Navigation 3 (`androidx.navigation3` 1.1.1) — type-safe `NavKey`s, requires `kotlin-serialization` plugin on any module declaring keys
 - Hilt 2.59.2 + KSP for DI (no kapt)
-- Room 2.8.2 for persistence; DataStore for prefs
+- Room 2.8.4 for persistence; DataStore for prefs
 - WorkManager + AlarmManager for scheduling
 - AccessibilityService for foreground app detection and overlay
 - RevenueCat (Phase 2) for subscriptions
