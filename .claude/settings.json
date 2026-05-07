@@ -2,16 +2,21 @@
   "permissions": {
     "allow": [
       "Bash(./gradlew *)",
-      "Bash(git status *)",
-      "Bash(git diff *)",
-      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git fetch *)",
+      "Bash(git stash *)",
+      "Bash(git push *)",
+      "Bash(gh run watch *)",
       "Bash(android *)",
+      "Bash(actionlint *)",
+      "Bash(adb devices)",
+      "Bash(adb logcat *)",
+      "Bash(adb shell am start *)",
+      "mcp__figma__get_design_context",
       "Read(**)",
-      "Edit(**.kt)",
-      "Edit(**.kts)",
-      "Edit(**.toml)",
-      "Edit(**.xml)",
-      "Edit(**.md)"
+      "Edit(**)",
+      "Write(**)"
     ],
     "deny": [
       "Bash(rm -rf *)",
