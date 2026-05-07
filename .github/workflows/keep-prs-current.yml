@@ -22,7 +22,7 @@ jobs:
           gh pr list --repo "$GITHUB_REPOSITORY" \
             --base main --state open \
             --json number,author,title \
-            --jq '.[] | select(.author.login != "app/dependabot") | "\(.number) \(.title)"' \
+            --jq '.[] | select(.author.login != "app/dependabot" and .author.login != "app/release-please[bot]") | "\(.number) \(.title)"' \
           | while IFS=' ' read -r pr rest; do
               if gh api --method PUT \
                   --header "Accept: application/vnd.github+json" \
