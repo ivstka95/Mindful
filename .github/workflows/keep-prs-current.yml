@@ -5,14 +5,15 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   update:
     name: keep all open PRs current with main
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Update non-Dependabot PRs via update-branch API
         env:
