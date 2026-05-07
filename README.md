@@ -9,11 +9,11 @@ A consumer-friendly Android app blocker. Pick the apps you want to limit, set pe
 
 | Area | Choice |
 | --- | --- |
-| Language | Kotlin 2.3.20, Coroutines + Flow (no LiveData, no RxJava) |
-| UI | Jetpack Compose (BOM 2026.03.01) + Material 3, no XML layouts |
+| Language | Kotlin 2.3.21, Coroutines + Flow (no LiveData, no RxJava) |
+| UI | Jetpack Compose (BOM 2026.05.00) + Material 3, no XML layouts |
 | Navigation | Jetpack Navigation 3 (`androidx.navigation3`) with type-safe `NavKey`s |
 | DI | Hilt 2.59.2 + KSP (no kapt) |
-| Persistence | Room 2.8.2 + DataStore for prefs |
+| Persistence | Room 2.8.4 + DataStore for prefs |
 | Scheduling | WorkManager + AlarmManager |
 | Blocking | AccessibilityService (foreground app detection + overlay) |
 | Time | `kotlinx.datetime` (never `java.time.*`) |
@@ -113,6 +113,15 @@ Both `gitleaks` and `pre-commit` are available via Homebrew.
 | `code quality` | all events | pre-commit hooks: gitleaks (full history), actionlint, file hygiene, detekt + ktlint |
 | `build` | all events | `./gradlew check :app:assembleDebug`; submits dependency graph to GitHub; uploads reports on failure, debug APK on PR success |
 | `dependency-review` | PRs only | runs after `build`; checks added/changed dependencies for high-severity CVEs and disallowed licenses; posts a summary comment on the PR |
+
+### Release automation
+
+`release-please` opens a Release PR whenever `feat:`, `fix:`, or `perf:` commits accumulate on `main`. Merging it:
+
+1. Bumps `VERSION_NAME` in `gradle.properties` and updates `CHANGELOG.md` automatically.
+2. Creates a git tag and GitHub Release with the changelog as the release body.
+
+Before merging a Release PR, manually increment `VERSION_CODE` in `gradle.properties` (it lives outside the release-please annotation markers). Requires a `RELEASE_PLEASE_TOKEN` secret (classic PAT, `repo` + `workflow` scopes).
 
 ## Privacy & Play policy
 
