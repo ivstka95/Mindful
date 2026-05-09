@@ -14,13 +14,14 @@ Repository: https://github.com/ivstka95/Mindful
 - KMP-ready: `:core:domain` is pure Kotlin (`mindful.jvm.library`), zero Android imports
 - AGP 9.2.1, Gradle 9.5.0, compileSdk 36, targetSdk 36, minSdk 26
 - Bytecode target: JDK 17 (`JvmTarget.JVM_17` + `VERSION_17`). Gradle daemon runs on JBR 21, pinned in `gradle/gradle-daemon-jvm.properties`, auto-provisioned via `foojay-resolver-convention` — no manual JDK install.
-- `build-logic/` convention plugins (NowInAndroid pattern), exposed via the version catalog: `mindful.android.application`, `mindful.android.library`, `mindful.android.library.compose`, `mindful.android.feature`, `mindful.android.hilt`, `mindful.android.room`, `mindful.jvm.library`. The Android conventions auto-add `testImplementation` (JUnit 5 + MockK + Turbine + coroutines-test) and `androidTestImplementation` (test runner + ext-junit), and configure `useJUnitPlatform()` — modules don't redeclare these.
+- `build-logic/` convention plugins (NowInAndroid pattern), exposed via the version catalog: `mindful.android.application`, `mindful.android.library`, `mindful.android.library.compose`, `mindful.android.feature`, `mindful.android.hilt`, `mindful.android.room`, `mindful.jvm.library`. The Android conventions auto-add `testImplementation` (JUnit 4 + MockK + Turbine + coroutines-test) and `androidTestImplementation` (test runner + ext-junit) — modules don't redeclare these. Modules that need `MainDispatcherRule` or other utilities from `:core:testing` add `testImplementation(projects.core.testing)` explicitly in their own `build.gradle.kts`.
 ## Module structure
-5 modules today — grows as features land.
+6 modules today — grows as features land.
 - `:app` — `MindfulApplication` (`@HiltAndroidApp`), `MainActivity` (`@AndroidEntryPoint`), root `MainNavigation` (Nav3). DI graph composition root. End-to-end Hilt is wired: `MainScreenViewModel` is `@HiltViewModel`- injected, `DataRepository` is `@Binds`-bound in `data/DataModule.kt`. Sources under `ivan/karpiuk/mindful/`.
 - `:core:designsystem` — Material 3 theme tokens, custom typography
 - `:core:domain` — pure Kotlin (`mindful.jvm.library`): usecases, entities. Uses `kotlinx-coroutines-core` (not `-android`) to stay KMP-portable.
 - `:core:database` — Room entities and DAOs. Applies `mindful.android.room`and `mindful.android.hilt`.
+- `:core:testing` — shared test utilities (`MainDispatcherRule`). Exposes JUnit 4 + MockK + Turbine + coroutines-test via `api` for consumer modules.
 - `:feature:onboarding` — permission wizard
 Settings file enables `TYPESAFE_PROJECT_ACCESSORS` — reference modules as`projects.core.domain`, not string paths.
 ## Architecture rules
@@ -28,6 +29,14 @@ These extend the global Clean Architecture principles for this project specifica
 - `:core:domain` MUST have zero Android imports. The `mindful.jvm.library` convention enforces this at the compiler level.
 - No business logic in `AccessibilityService` — dispatch to a domain UseCase via Hilt `@EntryPoint`.
 - Room entities live only in `:core:database`. Domain entities in `:core:domain` are separate types — mappers bridge them.
+## Testing strategy
+Framework: **JUnit 4 everywhere.** No JUnit 5 / org.junit.jupiter imports.
+Layer-specific rules (full rationale in global CLAUDE.md):
+- **`:core:domain`**: JUnit 4 + fakes. Fakes in `src/test/.../testing/`. No MockK. Split large test files by scenario. Coverage ≥ 90%.
+- **ViewModels**: JUnit 4 + MockK + Turbine + `MainDispatcherRule`. Coverage ≥ 70%.
+- **`AccessibilityService`**: `BlockingStateMachine` (pure Kotlin, in `:core:domain`) handles all logic. Service is a dumb adapter. StateMachine coverage ≥ 90%.
+- **Compose screens**: Roborazzi screenshot tests (393×852dp, light+dark) + Compose UI Test for interactions. Goldens committed to repo.
+- **Room DAOs**: in-memory database via `@RunWith(AndroidJUnit4::class)`. Never mock Room. `room-testing` in androidTestImplementation.
 ## Build commands
 ```bash
 ./gradlew :app:assembleDebug                # debug build

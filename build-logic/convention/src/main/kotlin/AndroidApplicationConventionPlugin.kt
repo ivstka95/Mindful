@@ -39,11 +39,10 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
 
             val libs = libs()
             dependencies {
-                add("testImplementation", libs.findLibrary("junit-jupiter").get())
+                add("testImplementation", libs.findLibrary("junit4").get())
                 add("testImplementation", libs.findLibrary("mockk").get())
                 add("testImplementation", libs.findLibrary("turbine").get())
                 add("testImplementation", libs.findLibrary("kotlinx-coroutines-test").get())
-                add("testRuntimeOnly", libs.findLibrary("junit-platform-launcher").get())
                 add("androidTestImplementation", libs.findLibrary("androidx-test-runner").get())
                 add("androidTestImplementation", libs.findLibrary("androidx-test-ext-junit").get())
             }
