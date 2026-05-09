@@ -8,12 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation3.runtime.NavKey
 import ivan.karpiuk.mindful.theme.MindfulTheme
 
 @Composable
-fun MainScreen(
-    @Suppress("UnusedParameter") onItemClick: (NavKey) -> Unit,
+fun MainRoute(
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = hiltViewModel(),
 ) {
