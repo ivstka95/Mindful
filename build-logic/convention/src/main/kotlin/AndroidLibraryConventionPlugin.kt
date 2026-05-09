@@ -21,10 +21,10 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 
             val libs = libs()
             dependencies {
-                add("testImplementation", libs.findLibrary("junit4").get())
-                add("testImplementation", libs.findLibrary("mockk").get())
-                add("testImplementation", libs.findLibrary("turbine").get())
-                add("testImplementation", libs.findLibrary("kotlinx-coroutines-test").get())
+                // :core:testing is excluded to avoid a circular dependency — it applies this plugin.
+                if (target.path != ":core:testing") {
+                    add("testImplementation", target.project(":core:testing"))
+                }
                 add("androidTestImplementation", libs.findLibrary("androidx-test-runner").get())
                 add("androidTestImplementation", libs.findLibrary("androidx-test-ext-junit").get())
             }
