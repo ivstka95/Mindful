@@ -29,6 +29,7 @@ The Gradle daemon runs on JBR 21 (pinned in `gradle/gradle-daemon-jvm.properties
 :core:designsystem      Material 3 theme tokens, typography
 :core:domain            Pure-Kotlin usecases & entities (KMP-ready)
 :core:database          Room entities & DAOs
+:core:testing           Shared test utilities (MainDispatcherRule, fakes)
 :feature:onboarding     Permission wizard
 ```
 
@@ -46,7 +47,7 @@ The Gradle daemon runs on JBR 21 (pinned in `gradle/gradle-daemon-jvm.properties
 - `mindful.android.room`
 - `mindful.jvm.library`
 
-The Android conventions wire JUnit 5 + MockK + Turbine + coroutines-test for unit tests and the standard test runner + ext-junit for instrumentation, so feature modules don't redeclare them.
+The Android conventions wire JUnit 4 + MockK + Turbine + coroutines-test for unit tests and the standard test runner + ext-junit for instrumentation, so feature modules don't redeclare them.
 
 ## Architecture
 
@@ -70,7 +71,7 @@ Clean Architecture with hard boundaries:
 ```bash
 ./gradlew :app:assembleDebug              # debug build
 ./gradlew :app:installDebug               # install on connected device/emulator
-./gradlew test                            # unit tests across all modules (JUnit 5)
+./gradlew test                            # unit tests across all modules
 ./gradlew :app:testDebugUnitTest          # :app unit tests only
 ./gradlew check                           # full quality gate: lint + detekt + ktlint + tests
 ./gradlew ktlintFormat                    # auto-fix ktlint violations
@@ -110,9 +111,9 @@ Both `gitleaks` and `pre-commit` are available via Homebrew.
 
 | Job | Runs on | What it does |
 | --- | --- | --- |
-| `code quality` | all events | pre-commit hooks: gitleaks (full history), actionlint, file hygiene, detekt + ktlint |
-| `build` | all events | `./gradlew check :app:assembleDebug`; submits dependency graph to GitHub; uploads reports on failure, debug APK on PR success |
-| `dependency-review` | PRs only | runs after `build`; checks added/changed dependencies for high-severity CVEs and disallowed licenses; posts a summary comment on the PR |
+| `pre-commit` | all events | pre-commit hooks: gitleaks (full history), actionlint, file hygiene, detekt + ktlint |
+| `gradle` | all events | `./gradlew check :app:assembleDebug`; submits dependency graph to GitHub; uploads reports on failure, debug APK on PR success |
+| `dependency-review` | PRs only | runs after `gradle`; checks added/changed dependencies for high-severity CVEs and disallowed licenses; posts a summary comment on the PR |
 
 ### Release automation
 

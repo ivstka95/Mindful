@@ -11,4 +11,5 @@ android {
 dependencies {
     implementation(projects.core.domain)
     implementation(libs.kotlinx.datetime)
+    androidTestImplementation(libs.androidx.room.testing)
 }
