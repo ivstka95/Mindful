@@ -1,14 +1,19 @@
 package ivan.karpiuk.mindful.ui.main
 
 import ivan.karpiuk.mindful.data.DataRepository
+import ivan.karpiuk.mindful.testing.MainDispatcherRule
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 
 class MainScreenViewModelTest {
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     @Test
     fun uiState_initiallyLoading() =
         runTest {

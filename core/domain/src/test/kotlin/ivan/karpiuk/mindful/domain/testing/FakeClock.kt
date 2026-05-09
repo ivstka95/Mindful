@@ -2,13 +2,14 @@ package ivan.karpiuk.mindful.domain.testing
 
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlin.time.Duration
 
 class FakeClock(
-    private var now: Instant = Instant.DISTANT_PAST,
+    private var now: Instant = Instant.parse("2025-01-01T00:00:00Z"),
 ) : Clock {
     override fun now(): Instant = now
 
-    fun advanceBy(duration: kotlin.time.Duration) {
+    fun advanceBy(duration: Duration) {
         now += duration
     }
 
