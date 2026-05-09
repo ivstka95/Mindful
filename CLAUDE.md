@@ -20,9 +20,9 @@ Repository: https://github.com/ivstka95/Mindful
 - `:app` — `MindfulApplication` (`@HiltAndroidApp`), `MainActivity` (`@AndroidEntryPoint`), root `MainNavigation` (Nav3). DI graph composition root. End-to-end Hilt is wired: `MainScreenViewModel` is `@HiltViewModel`- injected, `DataRepository` is `@Binds`-bound in `data/DataModule.kt`. Sources under `ivan/karpiuk/mindful/`.
 - `:core:designsystem` — Material 3 theme tokens, custom typography
 - `:core:domain` — pure Kotlin (`mindful.jvm.library`): usecases, entities. Uses `kotlinx-coroutines-core` (not `-android`) to stay KMP-portable.
-- `:core:database` — Room entities and DAOs. Applies `mindful.android.room`and `mindful.android.hilt`.
+- `:core:database` — Room entities and DAOs. Applies `mindful.android.room` and `mindful.android.hilt`.
 - `:feature:onboarding` — permission wizard
-Settings file enables `TYPESAFE_PROJECT_ACCESSORS` — reference modules as`projects.core.domain`, not string paths.
+Settings file enables `TYPESAFE_PROJECT_ACCESSORS` — reference modules as `projects.core.domain`, not string paths.
 ## Architecture rules
 These extend the global Clean Architecture principles for this project specifically:
 - `:core:domain` MUST have zero Android imports. The `mindful.jvm.library` convention enforces this at the compiler level.
@@ -58,9 +58,10 @@ adb shell am start -n ivan.karpiuk.mindful.debug/ivan.karpiuk.mindful.MainActivi
 Branching discipline is in the global CLAUDE.md. Enforcement on this project:
 - **Local**: `forbid-main-commit` pre-commit hook + `Bash(git push * main*)` deny in `.claude/settings.json`.
 - **Server-side**: GitHub branch protection on `main` (all 3 CI jobs must pass, enforce_admins=true, no force pushes).
-### Feature development flow
-Every feature: `/brainstorm` → `thoughts/specs/<feature>.md` → `/write-plan` → `/execute-plan`.
-Long features: use git worktrees (Superpowers `using-git-worktrees`).
+## Task execution flow
+Follows the global CLAUDE.md flow. Project-specific conventions:
+- Specs saved to `thoughts/specs/<task>.md`
+- Open follow-ups tracked in `thoughts/foundation-followups.md`
 ### Claude Code hooks (`.claude/settings.json`)
 - PostToolUse on Edit/Write → `scripts/format-on-edit.sh` (ktlint format)
 - PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard)
