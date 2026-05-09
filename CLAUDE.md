@@ -1,10 +1,7 @@
 # Mindful — Apps Usage Time Blocker
-
 A consumer-friendly Android app blocker. Users select apps, set per-app and total daily time limits, and the app blocks them via overlay when limits are reached. Freemium with subscription.
-
 Bundle ID: `ivan.karpiuk.mindful`
 Repository: https://github.com/ivstka95/Mindful
-
 ## Stack
 - Kotlin 2.3.21, Coroutines + Flow only (no LiveData, no RxJava)
 - Jetpack Compose via BOM 2026.05.00 + Material 3 (no XML layouts)
@@ -16,108 +13,77 @@ Repository: https://github.com/ivstka95/Mindful
 - RevenueCat (Phase 2) for subscriptions
 - KMP-ready: `:core:domain` is pure Kotlin (`mindful.jvm.library`), zero Android imports
 - AGP 9.2.1, Gradle 9.5.0, compileSdk 36, targetSdk 36, minSdk 26
-- Toolchains: bytecode target is JDK 17 (Kotlin `JvmTarget.JVM_17` + Java `sourceCompatibility/targetCompatibility = VERSION_17`); the Gradle daemon itself runs on JBR 21, pinned in `gradle/gradle-daemon-jvm.properties` and auto-provisioned via the `org.gradle.toolchains.foojay-resolver-convention` plugin in `settings.gradle.kts` — no manual JDK install required.
-- `build-logic/` convention plugins (NowInAndroid pattern), exposed via the version catalog: `mindful.android.application`, `mindful.android.library`, `mindful.android.library.compose`, `mindful.android.feature`, `mindful.android.hilt`, `mindful.android.room`, `mindful.jvm.library`. The Android conventions auto-add `testImplementation` (JUnit 5 + MockK + Turbine + coroutines-test) and `androidTestImplementation` (test runner + ext-junit), and configure `useJUnitPlatform()` for unit-test tasks — modules don't redeclare these.
-
-## Module structure (5 modules today — will grow as features land)
-- `:app` — `MindfulApplication` (`@HiltAndroidApp`), `MainActivity` (`@AndroidEntryPoint`), root `MainNavigation` (Nav3). DI graph composition root. End-to-end Hilt is wired: `MainScreenViewModel` is `@HiltViewModel`-injected, `DataRepository` is `@Binds`-bound in `data/DataModule.kt`. Sources under `ivan/karpiuk/mindful/`.
+- Bytecode target: JDK 17 (`JvmTarget.JVM_17` + `VERSION_17`). Gradle daemon runs on JBR 21, pinned in `gradle/gradle-daemon-jvm.properties`, auto-provisioned via `foojay-resolver-convention` — no manual JDK install.
+- `build-logic/` convention plugins (NowInAndroid pattern), exposed via the version catalog: `mindful.android.application`, `mindful.android.library`, `mindful.android.library.compose`, `mindful.android.feature`, `mindful.android.hilt`, `mindful.android.room`, `mindful.jvm.library`. The Android conventions auto-add `testImplementation` (JUnit 5 + MockK + Turbine + coroutines-test) and `androidTestImplementation` (test runner + ext-junit), and configure `useJUnitPlatform()` — modules don't redeclare these.
+## Module structure
+5 modules today — grows as features land.
+- `:app` — `MindfulApplication` (`@HiltAndroidApp`), `MainActivity` (`@AndroidEntryPoint`), root `MainNavigation` (Nav3). DI graph composition root. End-to-end Hilt is wired: `MainScreenViewModel` is `@HiltViewModel`- injected, `DataRepository` is `@Binds`-bound in `data/DataModule.kt`. Sources under `ivan/karpiuk/mindful/`.
 - `:core:designsystem` — Material 3 theme tokens, custom typography
-- `:core:domain` — pure Kotlin (`mindful.jvm.library`): usecases, entities. Uses `kotlinx-coroutines-core` (not `-android`) to keep KMP-portable.
-- `:core:database` — Room entities and DAOs. Applies `mindful.android.room` (Room runtime + KSP compiler + schema export) and `mindful.android.hilt`.
+- `:core:domain` — pure Kotlin (`mindful.jvm.library`): usecases, entities. Uses `kotlinx-coroutines-core` (not `-android`) to stay KMP-portable.
+- `:core:database` — Room entities and DAOs. Applies `mindful.android.room`and `mindful.android.hilt`.
 - `:feature:onboarding` — permission wizard
-
-Settings file enables `TYPESAFE_PROJECT_ACCESSORS`, so reference modules as `projects.core.domain` etc., not string paths.
-
-## Architecture rules (Clean Architecture, hard boundaries)
-- Direction: feature/* -> :core:domain -> :core:database/datastore. Never the other way.
-- :core:domain MUST NOT import androidx, android, java.time.*. Use kotlinx.datetime.
-- ViewModels expose StateFlow<UiState> only; events are sealed interface flows.
-- Composables are stateless where possible; state hoisting is mandatory.
-- No business logic in AccessibilityService — dispatch to a domain UseCase via Hilt entry point.
-
-## Compose rules
-- Prefer remember + derivedStateOf over computing in composition.
-- Material 3 only; do not import Material 2 (`androidx.compose.material:material`).
-- Each screen has *Route (DI + state) and *Screen (stateless, preview-friendly).
-- Always pass `Modifier` as first optional parameter; default to `Modifier`.
-- Use `collectAsStateWithLifecycle()`, not raw `collectAsState()`.
-
-## Testing rules
-- Unit tests: JUnit5 + MockK + Turbine.
-- TDD is mandatory for domain UseCases and ViewModels: red -> green -> refactor.
-- AccessibilityService logic split: pure Kotlin StateMachine (JUnit5) + Android adapter (Robolectric).
-- Coverage gate: domain >= 90%, feature >= 70%, service >= 60%.
-
+Settings file enables `TYPESAFE_PROJECT_ACCESSORS` — reference modules as`projects.core.domain`, not string paths.
+## Architecture rules
+These extend the global Clean Architecture principles for this project specifically:
+- `:core:domain` MUST have zero Android imports. The `mindful.jvm.library` convention enforces this at the compiler level.
+- No business logic in `AccessibilityService` — dispatch to a domain UseCase via Hilt `@EntryPoint`.
+- Room entities live only in `:core:database`. Domain entities in `:core:domain` are separate types — mappers bridge them.
 ## Build commands
-- `./gradlew :app:assembleDebug` — debug build
-- `./gradlew :app:installDebug` — install on connected device/emulator (debug applicationId is `ivan.karpiuk.mindful.debug`)
-- `./gradlew test` — unit tests across all modules (JUnit 5 via `useJUnitPlatform()` configured in convention plugins)
-- `./gradlew :app:testDebugUnitTest` — `:app` unit tests only
-- `./gradlew check` — full quality gate: Android lint + detekt + ktlint + unit tests across all modules. detekt config at `config/detekt/detekt.yml` (includes Compose-specific rules from `io.nlopez.compose.rules:detekt` plus `ForbiddenImport` for Material 2 / `java.time.*` / `java.util.Date` / `SimpleDateFormat`); ktlint config (4-space indent, max 140) at `.editorconfig`. Both wired via `subprojects {}` plugin reactors in the root `build.gradle.kts` (apply only after AGP/Kotlin plugins land, so Android source-set tasks register correctly). ktlint is the sole formatter — `detekt-formatting` is intentionally not included (it bundles an older ktlint engine that disagrees with ours).
-- `./gradlew ktlintFormat` — auto-fix ktlint violations.
-- Launch: `adb shell am start -n ivan.karpiuk.mindful.debug/ivan.karpiuk.mindful.MainActivity`
-
-## Knowledge sources (in priority order)
-- For Android platform: ALWAYS use `android docs search "<query>"` before web search.
-- For libraries (Compose, Hilt, kotlinx.datetime): use Context7 MCP.
-- For AccessibilityService policy: use `android docs search` + DeepWiki MCP (study existing apps).
-
-## Privacy & Play policy invariants
+```bash
+./gradlew :app:assembleDebug                # debug build
+./gradlew :app:installDebug                 # install (debug ID: ivan.karpiuk.mindful.debug)
+./gradlew test                              # unit tests across all modules
+./gradlew :app:testDebugUnitTest            # :app unit tests only
+./gradlew check                             # full quality gate (lint + detekt + ktlint + tests)
+./gradlew ktlintFormat                      # auto-fix ktlint violations
+adb shell am start -n ivan.karpiuk.mindful.debug/ivan.karpiuk.mindful.MainActivity
+```
+## Privacy & Play policy invariants (non-negotiable)
 - AccessibilityService MUST show in-app prominent disclosure before linking to Settings.
-- We DO NOT request QUERY_ALL_PACKAGES. We use <queries> with MAIN/LAUNCHER only.
+- We DO NOT request `QUERY_ALL_PACKAGES`. We use `<queries>` with `MAIN`/`LAUNCHER` only.
 - We collect no user data off-device. Usage stats stay in local Room DB.
-- All blocking decisions deterministic and rule-based. No autonomous AI in AccessibilityService.
-
-## GitHub Actions rules
-- Every `uses:` reference MUST be pinned to a full 40-character commit SHA — never a tag (`@v4`), branch (`@main`), or any other mutable ref.
-- Always use the SHA of the **latest release** — verify this every time, even when copying a SHA from an existing file or the user's message (it may be outdated). Resolve it via:
-  1. `gh api repos/<owner>/<repo>/releases/latest --jq '.tag_name'`
-  2. `gh api repos/<owner>/<repo>/git/ref/tags/<tag> --jq '.object | {sha, type}'`
-  3. If `type` is `"tag"` (annotated), dereference: `gh api repos/<owner>/<repo>/git/tags/<sha> --jq '.object.sha'`
-- Write as: `uses: owner/action@<40-char-sha> # vX.Y.Z`
-
+- All blocking decisions are deterministic and rule-based. No autonomous AI in AccessibilityService.
+- Policy note: AccessibilityService policy has tightened repeatedly since 2024.
+- Always verify current requirements via Developer Knowledge MCP before submitting to Play, not from training memory.
 ## Hard NOs
 - Never bypass Play's AccessibilityService restrictions.
-- Never call BillingClient directly; route through RevenueCat Purchases (Phase 2).
+- Never call BillingClient directly — route through RevenueCat (Phase 2).
 - Never write to MediaStore or external storage.
 - Never log package names of third-party apps to remote servers.
-- Never request QUERY_ALL_PACKAGES.
+- Never request `QUERY_ALL_PACKAGES`.
 - Never use `setUninstallBlocked` — Play policy violation.
 - Never store passwords/PINs in plaintext.
-- Never import `java.time.*`. Always `kotlinx.datetime`.
-- Never import `androidx.compose.material:material` (Material 2). Always Material 3.
-
 ## Workflow rules
-- **Never commit on `main`/`master`.** All edits — features, fixes, chores, docs, CI — happen on a dedicated branch named `<type>/<short-description>` (e.g. `feat/per-app-limits`, `fix/overlay-flicker`, `chore/bump-room`, `docs/update-readme`, `ci/forbid-main-commit`). Before starting **any** new branch, sync `main` first so the branch is based on the latest remote tip:
-  ```bash
-  git checkout main
-  git pull --ff-only
-  git checkout -b <type>/<short-description>
-  ```
-  Equivalent one-shot that never checks out `main` locally: `git fetch origin main && git checkout -b <type>/<short-description> origin/main`. If `git rev-parse --abbrev-ref HEAD` returns `main`/`master` and you have uncommitted changes, stash them (`git stash`) before the sync, then create the branch and pop the stash. Enforced locally by the `forbid-main-commit` pre-commit hook, by `Bash(git push * main*)` denies in `.claude/settings.json`, and server-side by GitHub branch protection on `main`.
-- Every feature: `/brainstorm` -> `thoughts/specs/<feature>.md` -> `/write-plan` -> `/execute-plan`.
-- Long features use git worktrees (Superpowers `using-git-worktrees`).
-- Claude Code hooks (configured in `.claude/settings.json`):
-  - PostToolUse on Edit/Write → `scripts/format-on-edit.sh` (ktlint format)
-  - PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard within the CLI session)
-- Git pre-commit hooks via [pre-commit](https://pre-commit.com/) (`.pre-commit-config.yaml`). Contributors run `pre-commit install` once after cloning. Hooks: (1) `pre-commit-hooks` v6 file-hygiene suite (trailing whitespace, EOF newline, YAML/TOML/XML/JSON syntax, merge-conflict markers, large files >500KB, private keys, mixed line endings); (2) `gitleaks` scans staged files for secrets; (3) `forbid-main-commit` rejects commits while `HEAD` is on `main`/`master` (override with `--no-verify` for emergency hotfixes); (4) `gradle-static-analysis` runs `./gradlew detekt ktlintCheck` whenever a `.kt`/`.kts` file is staged (~5s warm daemon, ~30s cold; skipped when no Kotlin files staged). Both `gitleaks` and `pre-commit` are available via Homebrew.
-- CI: `.github/workflows/check.yml`. Triggered on push to `main`, PRs targeting `main`, and manual dispatch. Three jobs:
-  - **code quality** (job id: `pre-commit`, timeout: 10 min): runs all `.pre-commit-config.yaml` hooks — gitleaks (full history via `fetch-depth: 0`), actionlint, file hygiene, `gradle-static-analysis`.
-  - **build** (job id: `gradle`, timeout: 30 min): `./gradlew check` (ktlint + detekt + lint + tests) + `./gradlew :app:assembleDebug`. Submits the Gradle dependency graph to GitHub. Gradle reports uploaded as artifacts on failure; debug APK uploaded on PR success.
-  - **dependency-review** (job id: `dependency-review`, PRs only, `needs: gradle`): runs `actions/dependency-review-action` against the dependency graph submitted by the build job; fails on high-severity vulnerabilities or disallowed licenses; posts a summary comment on the PR.
-  - All three jobs must pass before a PR can merge (enforced by branch protection, including for admins).
-  - To diagnose a CI failure: `gh run view --log-failed`. Reproduce locally: `pre-commit run --all-files` or `./gradlew check :app:assembleDebug`.
-  - Useful commands: `gh run list`, `gh run watch`, `gh pr checks --watch`.
-- Auto-update workflow (`.github/workflows/keep-prs-current.yml`, runs on push to `main`): keeps every open PR targeting `main` current, in two steps:
-  1. **Non-Dependabot PRs** — calls `PUT /pulls/{n}/update-branch` (server-side merge of main, same as clicking "Update branch"). PRs with conflicts are silently skipped; human resolution required.
-  2. **Dependabot PRs** — comments `@dependabot rebase` on any PR with `mergeStateStatus == DIRTY or BEHIND`. For conflicts Dependabot attempts auto-resolution; if it can't, it comments and leaves the PR for manual review. Pairs with `rebase-strategy: auto` in `.github/dependabot.yml`.
-- Release automation (`.github/workflows/release-please.yml`, runs on push to `main`): opens a "Release PR" that bumps `VERSION_NAME` in `gradle.properties` (inside `x-release-please-start-version` / `x-release-please-end` markers) and populates `CHANGELOG.md` when conventional commits accumulate. Requires a `RELEASE_PLEASE_TOKEN` secret (classic PAT with `repo` + `workflow` scopes). After merging the Release PR, manually increment `VERSION_CODE` in `gradle.properties` (outside the annotation markers) before the next release build.
-- After 3 failed bug-fix attempts, STOP. Run `/debug` for root-cause analysis.
-- Keep `/context` <= 60%. At 60%+, `/compact focus on <topic>`.
-- Open follow-ups for the foundation are tracked in `thoughts/foundation-followups.md`.
+### Branching
+Branching discipline is in the global CLAUDE.md. Enforcement on this project:
+- **Local**: `forbid-main-commit` pre-commit hook + `Bash(git push * main*)` deny in `.claude/settings.json`.
+- **Server-side**: GitHub branch protection on `main` (all 3 CI jobs must pass, enforce_admins=true, no force pushes).
+### Feature development flow
+Every feature: `/brainstorm` → `thoughts/specs/<feature>.md` → `/write-plan` → `/execute-plan`.
+Long features: use git worktrees (Superpowers `using-git-worktrees`).
+### Claude Code hooks (`.claude/settings.json`)
+- PostToolUse on Edit/Write → `scripts/format-on-edit.sh` (ktlint format)
+- PreToolUse on Bash → `scripts/forbid-secrets.sh` (secret guard)
+### Pre-commit hooks (`.pre-commit-config.yaml`)
+Contributors run `pre-commit install` once after cloning. Hooks:
+1. `pre-commit-hooks` v6 — file hygiene (whitespace, EOF, YAML/TOML/XML/JSON syntax, merge conflicts, large files >500KB, private keys, line endings)
+2. `gitleaks` — scans staged files for secrets
+3. `forbid-main-commit` — rejects commits on `main`/`master`
+4. `gradle-static-analysis` — runs `./gradlew detekt ktlintCheck` when `.kt`/`.kts` files are staged (~5s warm, ~30s cold)
+## CI (`.github/workflows/check.yml`)
+Triggered on push to `main`, PRs targeting `main`, and manual dispatch.
+Three parallel jobs — all must pass before merge:
 
-## Communication rules
-- Ivan is a Senior Android Developer (8 years). Skip beginner explanations.
-- When proposing architectural changes, present 2-3 alternatives with trade-offs.
-- Default response language: English.
-- Be terse in routine work; detailed when introducing new patterns.
+| Job ID | Timeout | What it runs |
+|---|---|---|
+| `pre-commit` | 10 min | All `.pre-commit-config.yaml` hooks: gitleaks (full history), actionlint, file hygiene, gradle-static-analysis |
+| `gradle` | 30 min | `./gradlew check` + `./gradlew :app:assembleDebug`. Submits dependency graph. Uploads reports on failure; APK on PR success. |
+| `dependency-review` | — | PRs only, `needs: gradle`. Fails on high-severity CVEs or disallowed licenses. |
+Additional workflows:
+- `keep-prs-current.yml` — auto-updates open PRs when main moves.
+- `release-please.yml` — opens Release PRs, bumps `VERSION_NAME` in `gradle.properties`, populates `CHANGELOG.md`. Requires `RELEASE_PLEASE_TOKEN` secret. After merging, manually increment `VERSION_CODE`.
+Diagnosing CI failures: `gh run view --log-failed`
+Reproduce locally: `pre-commit run --all-files` or `./gradlew check :app:assembleDebug`
+Useful: `gh run list`, `gh run watch`, `gh pr checks --watch`
+## Open items
+Follow-ups tracked in `thoughts/foundation-followups.md`.
