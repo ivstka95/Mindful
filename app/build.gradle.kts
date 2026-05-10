@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.mindful.android.library.compose)
     alias(libs.plugins.mindful.android.hilt)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.compose.stability.analyzer)
 }
 
 android {
@@ -22,6 +23,16 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+    }
+}
+
+composeStabilityAnalyzer {
+    stabilityValidation {
+        enabled.set(true)
+        outputDir.set(layout.projectDirectory.dir("stability"))
+        failOnStabilityChange.set(
+            providers.gradleProperty("composeStabilityStrict").orNull?.toBoolean() ?: true,
+        )
     }
 }
 

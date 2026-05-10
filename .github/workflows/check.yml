@@ -68,8 +68,8 @@ jobs:
       - name: Run check (ktlint + detekt + lint + tests)
         run: ./gradlew check --stacktrace
 
-      - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+      - name: Build debug APK and check stability
+        run: ./gradlew :app:assembleDebug :app:debugStabilityCheck :core:designsystem:debugStabilityCheck :feature:onboarding:debugStabilityCheck --stacktrace
 
       - name: Upload reports on failure
         if: failure()

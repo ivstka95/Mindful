@@ -3,6 +3,7 @@ compileSdk = "36"
 targetSdk = "36"
 minSdk = "26"
 androidGradlePlugin = "9.2.1"
+composeStabilityAnalyzer = "0.7.4"
 detekt = "1.23.8"
 detektCompose = "0.5.8"
 jdkTarget = "17"
@@ -73,6 +74,7 @@ turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+compose-stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "composeStabilityAnalyzer" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

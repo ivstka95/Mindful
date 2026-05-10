@@ -1,6 +1,17 @@
 plugins {
     alias(libs.plugins.mindful.android.library)
     alias(libs.plugins.mindful.android.library.compose)
+    alias(libs.plugins.compose.stability.analyzer)
+}
+
+composeStabilityAnalyzer {
+    stabilityValidation {
+        enabled.set(true)
+        outputDir.set(layout.projectDirectory.dir("stability"))
+        failOnStabilityChange.set(
+            providers.gradleProperty("composeStabilityStrict").orNull?.toBoolean() ?: true,
+        )
+    }
 }
 
 android {
