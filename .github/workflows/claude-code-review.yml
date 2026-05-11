@@ -1,17 +1,13 @@
 name: Claude Code Review
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, ready_for_review, reopened]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
 
 jobs:
   claude-review:
+    # Only run for same-repo PRs to protect secrets from fork contributors
+    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,5 +30,3 @@ jobs:
           plugins: 'code-review@claude-code-plugins'
           prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
           allowed_bots: 'dependabot'
-          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://code.claude.com/docs/en/cli-reference for available options
