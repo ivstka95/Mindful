@@ -43,6 +43,14 @@ repos:
         files: \.(kt|kts)$
         stages: [pre-commit]
 
+      - id: claude-simplify
+        name: claude-simplify
+        entry: claude
+        args: [-p, "Review the provided files using /simplify. Exit with code 1 if the code can be significantly simplified, otherwise exit with code 0."]
+        language: system
+        types: [kotlin, xml]
+        stages: [pre-commit]
+
   - repo: https://github.com/rhysd/actionlint
     rev: v1.7.12
     hooks:
