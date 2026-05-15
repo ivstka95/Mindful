@@ -7,6 +7,7 @@ data class AppLimit(
     val dailyLimit: Duration,
 ) {
     init {
+        require(packageName.isNotBlank()) { "packageName must not be blank" }
         require(dailyLimit.isPositive()) { "dailyLimit must be positive, was $dailyLimit" }
     }
 }

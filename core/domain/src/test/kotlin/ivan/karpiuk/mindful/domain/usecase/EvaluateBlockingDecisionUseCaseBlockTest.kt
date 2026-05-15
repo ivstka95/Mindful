@@ -50,9 +50,9 @@ class EvaluateBlockingDecisionUseCaseBlockTest {
     fun `returns Block with PerAppLimitReached when usage equals the daily limit`() =
         runTest {
             limits.preset("com.example.app", 30.minutes)
-            usage.preset("com.example.app", 30.minutes, today)
+            usage.preset("com.example.app", today, 30.minutes)
             assertEquals(
-                BlockingDecision.Block(BlockReason.PerAppLimitReached("com.example.app", 30)),
+                BlockingDecision.Block(BlockReason.PerAppLimitReached("com.example.app", 30.minutes)),
                 useCase("com.example.app"),
             )
         }
@@ -61,9 +61,9 @@ class EvaluateBlockingDecisionUseCaseBlockTest {
     fun `returns Block with PerAppLimitReached when usage exceeds the daily limit`() =
         runTest {
             limits.preset("com.example.app", 30.minutes)
-            usage.preset("com.example.app", 31.minutes, today)
+            usage.preset("com.example.app", today, 31.minutes)
             assertEquals(
-                BlockingDecision.Block(BlockReason.PerAppLimitReached("com.example.app", 30)),
+                BlockingDecision.Block(BlockReason.PerAppLimitReached("com.example.app", 30.minutes)),
                 useCase("com.example.app"),
             )
         }
@@ -72,17 +72,17 @@ class EvaluateBlockingDecisionUseCaseBlockTest {
     fun `PerAppLimitReached carries the correct package name`() =
         runTest {
             limits.preset("com.target.app", 1.hours)
-            usage.preset("com.target.app", 61.minutes, today)
+            usage.preset("com.target.app", today, 61.minutes)
             val decision = useCase("com.target.app") as BlockingDecision.Block
             assertEquals("com.target.app", (decision.reason as BlockReason.PerAppLimitReached).appPackage)
         }
 
     @Test
-    fun `PerAppLimitReached carries limit converted to whole minutes`() =
+    fun `PerAppLimitReached carries the full limit Duration`() =
         runTest {
             limits.preset("com.example.app", 2.hours)
-            usage.preset("com.example.app", 2.hours, today)
+            usage.preset("com.example.app", today, 2.hours)
             val decision = useCase("com.example.app") as BlockingDecision.Block
-            assertEquals(120, (decision.reason as BlockReason.PerAppLimitReached).limitMinutes)
+            assertEquals(2.hours, (decision.reason as BlockReason.PerAppLimitReached).limit)
         }
 }

@@ -48,11 +48,25 @@ class BlockingStateMachineTest {
     fun `returns ShowOverlay when blocked app comes to foreground`() =
         runTest {
             limits.preset("com.example.app", 30.minutes)
-            usage.preset("com.example.app", 30.minutes, today)
+            usage.preset("com.example.app", today, 30.minutes)
             assertEquals(
                 BlockingCommand.ShowOverlay(
                     "com.example.app",
-                    BlockReason.PerAppLimitReached("com.example.app", 30),
+                    BlockReason.PerAppLimitReached("com.example.app", 30.minutes),
+                ),
+                stateMachine.onAppForegrounded("com.example.app"),
+            )
+        }
+
+    @Test
+    fun `returns ShowOverlay with StrictModeActive when strict mode is on and app has a limit`() =
+        runTest {
+            settings.isStrictModeValue = true
+            limits.preset("com.example.app", 30.minutes)
+            assertEquals(
+                BlockingCommand.ShowOverlay(
+                    "com.example.app",
+                    BlockReason.StrictModeActive,
                 ),
                 stateMachine.onAppForegrounded("com.example.app"),
             )
@@ -82,14 +96,31 @@ class BlockingStateMachineTest {
     fun `blocked app shows overlay then dismisses when user goes to home`() =
         runTest {
             limits.preset("com.example.app", 30.minutes)
-            usage.preset("com.example.app", 30.minutes, today)
+            usage.preset("com.example.app", today, 30.minutes)
             assertEquals(
                 BlockingCommand.ShowOverlay(
                     "com.example.app",
-                    BlockReason.PerAppLimitReached("com.example.app", 30),
+                    BlockReason.PerAppLimitReached("com.example.app", 30.minutes),
                 ),
                 stateMachine.onAppForegrounded("com.example.app"),
             )
             assertEquals(BlockingCommand.DismissOverlay, stateMachine.onAppBackgrounded())
+        }
+
+    @Test
+    fun `direct app switch without backgrounding evaluates new app and updates tracking`() =
+        runTest {
+            limits.preset("com.blocked.app", 30.minutes)
+            usage.preset("com.blocked.app", today, 30.minutes)
+            stateMachine.onAppForegrounded("com.allowed.app")
+            val command = stateMachine.onAppForegrounded("com.blocked.app")
+            assertEquals(
+                BlockingCommand.ShowOverlay(
+                    "com.blocked.app",
+                    BlockReason.PerAppLimitReached("com.blocked.app", 30.minutes),
+                ),
+                command,
+            )
+            assertEquals("com.blocked.app", stateMachine.getCurrentForegroundApp())
         }
 }

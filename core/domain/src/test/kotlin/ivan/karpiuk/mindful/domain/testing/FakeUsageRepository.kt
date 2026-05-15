@@ -20,14 +20,6 @@ class FakeUsageRepository : UsageRepository {
         records[packageName to dayKey] = duration
     }
 
-    fun preset(
-        packageName: String,
-        today: Duration,
-        dayKey: DayKey,
-    ) {
-        records[packageName to dayKey] = today
-    }
-
     override suspend fun getTodayUsage(
         packageName: String,
         dayKey: DayKey,

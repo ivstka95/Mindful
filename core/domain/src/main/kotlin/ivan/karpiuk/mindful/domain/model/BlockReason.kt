@@ -1,9 +1,11 @@
 package ivan.karpiuk.mindful.domain.model
 
+import kotlin.time.Duration
+
 sealed interface BlockReason {
     data class PerAppLimitReached(
         val appPackage: String,
-        val limitMinutes: Int,
+        val limit: Duration,
     ) : BlockReason
 
     data object TotalLimitReached : BlockReason

@@ -39,10 +39,17 @@ class CalculateRemainingTimeUseCaseTest {
         }
 
     @Test
+    fun `returns full limit when usage is zero`() =
+        runTest {
+            limits.preset("com.example.app", 30.minutes)
+            assertEquals(30.minutes, useCase("com.example.app"))
+        }
+
+    @Test
     fun `returns correct remaining time when under limit`() =
         runTest {
             limits.preset("com.example.app", 30.minutes)
-            usage.preset("com.example.app", 20.minutes, today)
+            usage.preset("com.example.app", today, 20.minutes)
             assertEquals(10.minutes, useCase("com.example.app"))
         }
 
@@ -50,7 +57,7 @@ class CalculateRemainingTimeUseCaseTest {
     fun `returns Duration ZERO when usage equals limit`() =
         runTest {
             limits.preset("com.example.app", 30.minutes)
-            usage.preset("com.example.app", 30.minutes, today)
+            usage.preset("com.example.app", today, 30.minutes)
             assertEquals(Duration.ZERO, useCase("com.example.app"))
         }
 
@@ -58,7 +65,7 @@ class CalculateRemainingTimeUseCaseTest {
     fun `returns Duration ZERO when usage exceeds limit`() =
         runTest {
             limits.preset("com.example.app", 30.minutes)
-            usage.preset("com.example.app", 45.minutes, today)
+            usage.preset("com.example.app", today, 45.minutes)
             assertEquals(Duration.ZERO, useCase("com.example.app"))
         }
 }

@@ -29,13 +29,6 @@ class FakeUsageRepositoryTest {
         }
 
     @Test
-    fun `preset with today param and dayKey sets usage directly`() =
-        runTest {
-            repo.preset("com.example.app", 45.minutes, today)
-            assertEquals(45.minutes, repo.getTodayUsage("com.example.app", today))
-        }
-
-    @Test
     fun `recordUsage accumulates duration for the same package and day`() =
         runTest {
             repo.recordUsage("com.example.app", today, 10.minutes)

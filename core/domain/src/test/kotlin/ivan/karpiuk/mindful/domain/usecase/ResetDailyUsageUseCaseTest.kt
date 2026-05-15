@@ -23,7 +23,29 @@ class ResetDailyUsageUseCaseTest {
     fun `resets usage so getTodayUsage returns Duration ZERO for that day`() =
         runTest {
             val day = DayKey("2026-05-09")
-            usage.preset("com.example.app", 45.minutes, day)
+            usage.preset("com.example.app", day, 45.minutes)
+            useCase(day)
+            assertEquals(Duration.ZERO, usage.getTodayUsage("com.example.app", day))
+        }
+
+    @Test
+    fun `reset clears all apps on the target day but not other days`() =
+        runTest {
+            val today = DayKey("2026-05-09")
+            val yesterday = DayKey("2026-05-08")
+            usage.preset("com.a", today, 30.minutes)
+            usage.preset("com.b", today, 15.minutes)
+            usage.preset("com.a", yesterday, 60.minutes)
+            useCase(today)
+            assertEquals(Duration.ZERO, usage.getTodayUsage("com.a", today))
+            assertEquals(Duration.ZERO, usage.getTodayUsage("com.b", today))
+            assertEquals(60.minutes, usage.getTodayUsage("com.a", yesterday))
+        }
+
+    @Test
+    fun `reset on a day with no usage is a no-op`() =
+        runTest {
+            val day = DayKey("2026-05-09")
             useCase(day)
             assertEquals(Duration.ZERO, usage.getTodayUsage("com.example.app", day))
         }

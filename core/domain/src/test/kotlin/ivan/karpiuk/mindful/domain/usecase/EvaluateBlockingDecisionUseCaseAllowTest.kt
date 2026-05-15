@@ -39,7 +39,7 @@ class EvaluateBlockingDecisionUseCaseAllowTest {
     fun `returns Allow when usage is below the daily limit`() =
         runTest {
             limits.preset("com.example.app", 1.hours)
-            usage.preset("com.example.app", 59.minutes, today)
+            usage.preset("com.example.app", today, 59.minutes)
             assertEquals(BlockingDecision.Allow, useCase("com.example.app"))
         }
 
@@ -54,7 +54,7 @@ class EvaluateBlockingDecisionUseCaseAllowTest {
     fun `returns Allow for a different package that has no limit even when another package is blocked`() =
         runTest {
             limits.preset("com.blocked.app", 30.minutes)
-            usage.preset("com.blocked.app", 31.minutes, today)
+            usage.preset("com.blocked.app", today, 31.minutes)
             assertEquals(BlockingDecision.Allow, useCase("com.other.app"))
         }
 }

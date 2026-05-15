@@ -15,21 +15,19 @@ class ValidateLimitUseCase(
         proposedLimit: Duration,
     ): ValidationResult {
         if (!proposedLimit.isPositive()) {
-            return ValidationResult(isValid = false, error = "Limit must be greater than zero")
+            return ValidationResult.Invalid(ValidationResult.Reason.NonPositiveDuration)
         }
         if (proposedLimit > 24.hours) {
-            return ValidationResult(isValid = false, error = "Limit must not exceed 24 hours")
+            return ValidationResult.Invalid(ValidationResult.Reason.ExceedsMaxDuration)
         }
         val alreadyHasLimit = limitsRepository.getLimit(packageName) != null
         if (!alreadyHasLimit && !settingsRepository.isPremium()) {
             val currentCount = limitsRepository.getAll().size
-            if (currentCount >= settingsRepository.getFreeTierMaxApps()) {
-                return ValidationResult(
-                    isValid = false,
-                    error = "Free tier allows up to ${settingsRepository.getFreeTierMaxApps()} apps",
-                )
+            val maxApps = settingsRepository.getFreeTierMaxApps()
+            if (currentCount >= maxApps) {
+                return ValidationResult.Invalid(ValidationResult.Reason.FreeTierLimitReached(maxApps))
             }
         }
-        return ValidationResult(isValid = true)
+        return ValidationResult.Valid
     }
 }

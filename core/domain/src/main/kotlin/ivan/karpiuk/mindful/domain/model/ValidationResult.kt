@@ -1,6 +1,19 @@
 package ivan.karpiuk.mindful.domain.model
 
-data class ValidationResult(
-    val isValid: Boolean,
-    val error: String? = null,
-)
+sealed interface ValidationResult {
+    data object Valid : ValidationResult
+
+    data class Invalid(
+        val reason: Reason,
+    ) : ValidationResult
+
+    sealed interface Reason {
+        data object NonPositiveDuration : Reason
+
+        data object ExceedsMaxDuration : Reason
+
+        data class FreeTierLimitReached(
+            val maxApps: Int,
+        ) : Reason
+    }
+}

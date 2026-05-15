@@ -1,10 +1,10 @@
 package ivan.karpiuk.mindful.domain.usecase
 
+import ivan.karpiuk.mindful.domain.model.ValidationResult
 import ivan.karpiuk.mindful.domain.testing.FakeLimitsRepository
 import ivan.karpiuk.mindful.domain.testing.FakeSettingsRepository
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import kotlin.time.Duration
@@ -27,10 +27,10 @@ class ValidateLimitUseCaseInvalidTest {
     private suspend fun assertInvalid(
         packageName: String,
         duration: Duration,
-    ) {
+    ): ValidationResult.Invalid {
         val result = useCase(packageName, duration)
-        assertFalse(result.isValid)
-        assertNotNull(result.error)
+        assertTrue("expected Invalid but was $result", result is ValidationResult.Invalid)
+        return result as ValidationResult.Invalid
     }
 
     @Test
@@ -57,6 +57,7 @@ class ValidateLimitUseCaseInvalidTest {
             repeat(settings.freeTierMaxApps) { i ->
                 limits.preset("com.app.$i", 1.hours)
             }
-            assertInvalid("com.new.app", 30.minutes)
+            val result = assertInvalid("com.new.app", 30.minutes)
+            assertTrue(result.reason is ValidationResult.Reason.FreeTierLimitReached)
         }
 }

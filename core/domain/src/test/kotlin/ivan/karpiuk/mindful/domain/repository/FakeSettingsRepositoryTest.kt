@@ -50,6 +50,16 @@ class FakeSettingsRepositoryTest {
         }
 
     @Test
+    fun `observeStrictMode reflects mutation after collection starts`() =
+        runTest {
+            val before = repo.observeStrictMode().first()
+            repo.isStrictModeValue = true
+            val after = repo.observeStrictMode().first()
+            assertFalse(before)
+            assertTrue(after)
+        }
+
+    @Test
     fun `freeTierMaxApps override is reflected in getFreeTierMaxApps`() {
         repo.freeTierMaxApps = 5
         assertEquals(5, repo.getFreeTierMaxApps())

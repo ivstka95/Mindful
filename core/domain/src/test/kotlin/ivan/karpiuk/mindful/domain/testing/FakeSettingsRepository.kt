@@ -7,16 +7,22 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class FakeSettingsRepository : SettingsRepository {
     var isPremiumValue = false
-    var isStrictModeValue = false
+
+    private val strictModeState = MutableStateFlow(false)
+    var isStrictModeValue: Boolean
+        get() = strictModeState.value
+        set(value) {
+            strictModeState.value = value
+        }
 
     @JvmField
     var freeTierMaxApps = 3
 
     override suspend fun isPremium(): Boolean = isPremiumValue
 
-    override suspend fun isStrictModeEnabled(): Boolean = isStrictModeValue
+    override suspend fun isStrictModeEnabled(): Boolean = strictModeState.value
 
-    override fun observeStrictMode(): Flow<Boolean> = MutableStateFlow(isStrictModeValue).asStateFlow()
+    override fun observeStrictMode(): Flow<Boolean> = strictModeState.asStateFlow()
 
     override fun getFreeTierMaxApps(): Int = freeTierMaxApps
 }

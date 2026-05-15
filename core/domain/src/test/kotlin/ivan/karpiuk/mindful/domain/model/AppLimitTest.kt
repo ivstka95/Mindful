@@ -28,4 +28,14 @@ class AppLimitTest {
         val limit = AppLimit(packageName = "com.example.app", dailyLimit = 1.minutes)
         assertEquals(1.minutes, limit.dailyLimit)
     }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `throws when packageName is blank`() {
+        AppLimit(packageName = "", dailyLimit = 1.hours)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `throws when packageName is whitespace only`() {
+        AppLimit(packageName = "   ", dailyLimit = 1.hours)
+    }
 }

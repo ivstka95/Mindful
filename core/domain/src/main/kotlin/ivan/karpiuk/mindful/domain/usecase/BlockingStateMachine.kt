@@ -6,7 +6,8 @@ import ivan.karpiuk.mindful.domain.model.BlockingDecision
 class BlockingStateMachine(
     private val evaluateBlocking: EvaluateBlockingDecisionUseCase,
 ) {
-    private var currentForegroundApp: String? = null
+    // Callers must serialise access on a single-threaded dispatcher (e.g. Dispatchers.Main).
+    @Volatile private var currentForegroundApp: String? = null
 
     suspend fun onAppForegrounded(packageName: String): BlockingCommand {
         currentForegroundApp = packageName

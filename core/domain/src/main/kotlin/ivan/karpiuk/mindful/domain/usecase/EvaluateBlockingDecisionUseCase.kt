@@ -17,28 +17,19 @@ class EvaluateBlockingDecisionUseCase(
     private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
 ) {
     suspend operator fun invoke(packageName: String): BlockingDecision {
-        val dayKey = DayKey.today(clock, timeZone)
+        val limit = limitsRepository.getLimit(packageName) ?: return BlockingDecision.Allow
 
-        // Step 2: strict mode blocks immediately if a limit exists for this package
         if (settingsRepository.isStrictModeEnabled()) {
-            val strictLimit = limitsRepository.getLimit(packageName)
-            if (strictLimit != null) {
-                return BlockingDecision.Block(BlockReason.StrictModeActive)
-            }
+            return BlockingDecision.Block(BlockReason.StrictModeActive)
         }
 
-        // Step 3: no limit → always allow
-        val limit =
-            limitsRepository.getLimit(packageName)
-                ?: return BlockingDecision.Allow
-
-        // Step 4: per-app daily limit check
+        val dayKey = DayKey.today(clock, timeZone)
         val todayUsage = usageRepository.getTodayUsage(packageName, dayKey)
         if (todayUsage >= limit.dailyLimit) {
             return BlockingDecision.Block(
                 BlockReason.PerAppLimitReached(
                     appPackage = packageName,
-                    limitMinutes = limit.dailyLimit.inWholeMinutes.toInt(),
+                    limit = limit.dailyLimit,
                 ),
             )
         }

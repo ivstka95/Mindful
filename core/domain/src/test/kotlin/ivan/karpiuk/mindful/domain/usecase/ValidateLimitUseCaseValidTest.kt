@@ -25,10 +25,13 @@ class ValidateLimitUseCaseValidTest {
     @Test
     fun `positive duration within 24 hours is valid`() =
         runTest {
-            assertEquals(
-                ValidationResult(isValid = true),
-                useCase("com.example.app", 30.minutes),
-            )
+            assertEquals(ValidationResult.Valid, useCase("com.example.app", 30.minutes))
+        }
+
+    @Test
+    fun `exactly 24 hours is valid`() =
+        runTest {
+            assertEquals(ValidationResult.Valid, useCase("com.example.app", 24.hours))
         }
 
     @Test
@@ -38,10 +41,7 @@ class ValidateLimitUseCaseValidTest {
                 limits.preset("com.app.$i", 1.hours)
             }
             // com.app.0 already has a limit — updating it should be valid
-            assertEquals(
-                ValidationResult(isValid = true),
-                useCase("com.app.0", 2.hours),
-            )
+            assertEquals(ValidationResult.Valid, useCase("com.app.0", 2.hours))
         }
 
     @Test
@@ -51,9 +51,6 @@ class ValidateLimitUseCaseValidTest {
             repeat(settings.freeTierMaxApps) { i ->
                 limits.preset("com.app.$i", 1.hours)
             }
-            assertEquals(
-                ValidationResult(isValid = true),
-                useCase("com.new.app", 1.hours),
-            )
+            assertEquals(ValidationResult.Valid, useCase("com.new.app", 1.hours))
         }
 }

@@ -2,7 +2,7 @@ package ivan.karpiuk.mindful.domain.repository
 
 import ivan.karpiuk.mindful.domain.model.AppLimit
 import ivan.karpiuk.mindful.domain.testing.FakeLimitsRepository
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -65,15 +65,24 @@ class FakeLimitsRepositoryTest {
         }
 
     @Test
-    fun `observeAll emits a single snapshot of current limits`() =
+    fun `observeAll emits current limits`() =
         runTest {
             repo.preset(AppLimit("com.a", 1.hours))
             repo.preset(AppLimit("com.b", 2.hours))
-            val emissions = repo.observeAll().toList()
-            assertEquals(1, emissions.size)
             assertEquals(
                 setOf(AppLimit("com.a", 1.hours), AppLimit("com.b", 2.hours)),
-                emissions[0].toSet(),
+                repo.observeAll().first().toSet(),
             )
+        }
+
+    @Test
+    fun `observeAll reflects mutations after collection starts`() =
+        runTest {
+            repo.preset(AppLimit("com.a", 1.hours))
+            val before = repo.observeAll().first().toSet()
+            repo.preset(AppLimit("com.b", 2.hours))
+            val after = repo.observeAll().first().toSet()
+            assertEquals(setOf(AppLimit("com.a", 1.hours)), before)
+            assertEquals(setOf(AppLimit("com.a", 1.hours), AppLimit("com.b", 2.hours)), after)
         }
 }
