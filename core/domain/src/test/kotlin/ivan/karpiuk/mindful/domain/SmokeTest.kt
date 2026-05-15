@@ -1,9 +1,9 @@
 package ivan.karpiuk.mindful.domain
 
 import ivan.karpiuk.mindful.domain.testing.FakeClock
-import kotlinx.datetime.Instant
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlin.time.Instant
 
 /**
  * Verifies JUnit 4 and core test dependencies are correctly wired in :core:domain.
