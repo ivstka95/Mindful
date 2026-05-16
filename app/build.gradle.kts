@@ -29,6 +29,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.domain)
     implementation(projects.core.database)
+    implementation(projects.core.datastore)
     implementation(projects.feature.onboarding)
 
     implementation(libs.androidx.activity.compose)
