@@ -36,7 +36,7 @@ Layer-specific rules (full rationale in global CLAUDE.md):
 - **ViewModels**: JUnit 4 + MockK + Turbine + `MainDispatcherRule`. Coverage ≥ 70%.
 - **`AccessibilityService`**: `BlockingStateMachine` (pure Kotlin, in `:core:domain`) handles all logic. Service is a dumb adapter. StateMachine coverage ≥ 90%.
 - **Compose screens**: Roborazzi screenshot tests (393×852dp, light+dark) + Compose UI Test for interactions. Goldens committed to repo.
-- **Room DAOs**: in-memory database via `@RunWith(AndroidJUnit4::class)`. Never mock Room. `room-testing` in androidTestImplementation.
+- **Room DAOs**: JVM tests in `src/test/` using Robolectric. Never mock Room. Use `Room.inMemoryDatabaseBuilder()` + `allowMainThreadQueries()`. Runner: `@RunWith(AndroidJUnit4::class)` (Robolectric 4.x supports it without `RobolectricTestRunner`). Pin the SDK in `src/test/resources/robolectric.properties` (`sdk=35`). Dependencies: `testImplementation(libs.robolectric)`, `testImplementation(libs.androidx.test.core)`, `testImplementation(libs.androidx.test.ext.junit)`, `testImplementation(libs.androidx.room.testing)`. Enable `testOptions { unitTests { isIncludeAndroidResources = true } }` in the module's `build.gradle.kts`. Do NOT move DAO tests to `src/androidTest/` — CI has no emulator and `./gradlew check` does not run instrumented tests.
 ## Build commands
 ```bash
 ./gradlew :app:assembleDebug                # debug build
