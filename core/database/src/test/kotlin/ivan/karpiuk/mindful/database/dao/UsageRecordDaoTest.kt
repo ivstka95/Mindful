@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.cash.turbine.test
 import ivan.karpiuk.mindful.database.MindfulDatabase
 import ivan.karpiuk.mindful.database.entity.UsageRecordEntity
 import kotlinx.coroutines.flow.first
@@ -116,5 +117,24 @@ class UsageRecordDaoTest {
     fun `observe emits null initially for unknown record`() =
         runTest {
             assertNull(dao.observe("com.example.app", "2026-05-09").first())
+        }
+
+    @Test
+    fun `observe emits updated value after insert`() =
+        runTest {
+            dao.observe("com.example.app", "2026-05-09").test {
+                assertNull(awaitItem())
+                dao.insert(UsageRecordEntity("com.example.app", "2026-05-09", 600_000L))
+                assertEquals(600_000L, awaitItem()?.durationMs)
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `getTotalDurationMsForDay returns 0 after deleteAllForDay`() =
+        runTest {
+            dao.insert(UsageRecordEntity("com.example.app", "2026-05-09", 1_800_000L))
+            dao.deleteAllForDay("2026-05-09")
+            assertEquals(0L, dao.getTotalDurationMsForDay("2026-05-09"))
         }
 }

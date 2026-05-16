@@ -26,6 +26,7 @@ object DatastoreModule {
     fun provideDataStore(
         @ApplicationContext context: Context,
     ): DataStore<Preferences> =
+        // TODO: replace with @ApplicationScope once an app-level CoroutineScope is provisioned in the Hilt graph
         PreferenceDataStoreFactory.create(
             scope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
             produceFile = { context.preferencesDataStoreFile("mindful_settings") },

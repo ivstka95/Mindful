@@ -11,6 +11,10 @@ android {
             isIncludeAndroidResources = true
         }
     }
+    sourceSets {
+        // Expose exported Room schemas as assets for MigrationTestHelper in JVM (Robolectric) tests
+        getByName("test").assets.srcDir(project.files("schemas"))
+    }
 }
 
 dependencies {
