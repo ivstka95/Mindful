@@ -33,3 +33,4 @@ jobs:
           additional_permissions: |
             Bash(gh *)
             mcp__github__*
+          show_full_output: true
