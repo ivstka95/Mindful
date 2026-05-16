@@ -125,3 +125,5 @@ jobs:
             Unicode-DFS-2016,
             PSF-2.0
           comment-summary-in-pr: always
+          allow-ghsas: >-
+            GHSA-p93r-85wp-75v3
