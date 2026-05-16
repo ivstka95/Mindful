@@ -11,10 +11,3 @@ fun UsageRecordEntity.toDomain(): UsageRecord =
         dayKey = DayKey(dayKey),
         duration = durationMs.milliseconds,
     )
-
-fun UsageRecord.toEntity(): UsageRecordEntity =
-    UsageRecordEntity(
-        packageName = packageName,
-        dayKey = dayKey.value,
-        durationMs = duration.inWholeMilliseconds,
-    )

@@ -1,5 +1,6 @@
 package ivan.karpiuk.mindful.database
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import ivan.karpiuk.mindful.database.dao.AppLimitDao
@@ -9,8 +10,9 @@ import ivan.karpiuk.mindful.database.entity.UsageRecordEntity
 
 @Database(
     entities = [AppLimitEntity::class, UsageRecordEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = true,
+    autoMigrations = [AutoMigration(from = 1, to = 2)],
 )
 abstract class MindfulDatabase : RoomDatabase() {
     abstract fun appLimitDao(): AppLimitDao
