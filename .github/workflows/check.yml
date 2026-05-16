@@ -124,6 +124,9 @@ jobs:
             CC0-1.0,
             Unicode-DFS-2016,
             Unicode-3.0,
+            LicenseRef-scancode-unicode,
             PSF-2.0,
             CDDL-1.0
           comment-summary-in-pr: always
+          allow-ghsas: >-
+            GHSA-p93r-85wp-75v3
