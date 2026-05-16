@@ -1,7 +1,6 @@
 package ivan.karpiuk.mindful.database.repository
 
 import ivan.karpiuk.mindful.database.dao.UsageRecordDao
-import ivan.karpiuk.mindful.database.entity.UsageRecordEntity
 import ivan.karpiuk.mindful.domain.model.DayKey
 import ivan.karpiuk.mindful.domain.repository.UsageRepository
 import kotlinx.coroutines.flow.Flow
@@ -27,9 +26,7 @@ class UsageRepositoryImpl
             dayKey: DayKey,
             additional: Duration,
         ) {
-            val existing = dao.get(packageName, dayKey.value)
-            val newMs = (existing?.durationMs ?: 0L) + additional.inWholeMilliseconds
-            dao.insert(UsageRecordEntity(packageName, dayKey.value, newMs))
+            dao.accumulate(packageName, dayKey.value, additional.inWholeMilliseconds)
         }
 
         override fun observeTodayUsage(

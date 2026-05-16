@@ -3,6 +3,7 @@ package ivan.karpiuk.mindful.database.dao
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import ivan.karpiuk.mindful.database.MindfulDatabase
 import ivan.karpiuk.mindful.database.entity.AppLimitEntity
@@ -14,11 +15,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
+@RunWith(AndroidJUnit4::class)
 class AppLimitDaoTest {
     private lateinit var db: MindfulDatabase
     private lateinit var dao: AppLimitDao

@@ -3,6 +3,7 @@ package ivan.karpiuk.mindful.database.dao
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import ivan.karpiuk.mindful.database.MindfulDatabase
 import ivan.karpiuk.mindful.database.entity.UsageRecordEntity
 import kotlinx.coroutines.flow.first
@@ -13,11 +14,8 @@ import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(sdk = [35])
+@RunWith(AndroidJUnit4::class)
 class UsageRecordDaoTest {
     private lateinit var db: MindfulDatabase
     private lateinit var dao: UsageRecordDao
@@ -63,6 +61,21 @@ class UsageRecordDaoTest {
             dao.insert(UsageRecordEntity("com.example.app", "2026-05-09", 600_000L))
             dao.insert(UsageRecordEntity("com.example.app", "2026-05-09", 1_800_000L))
             assertEquals(1_800_000L, dao.get("com.example.app", "2026-05-09")?.durationMs)
+        }
+
+    @Test
+    fun `accumulate adds duration to existing record`() =
+        runTest {
+            dao.insert(UsageRecordEntity("com.example.app", "2026-05-09", 600_000L))
+            dao.accumulate("com.example.app", "2026-05-09", 300_000L)
+            assertEquals(900_000L, dao.get("com.example.app", "2026-05-09")?.durationMs)
+        }
+
+    @Test
+    fun `accumulate inserts new record when none exists`() =
+        runTest {
+            dao.accumulate("com.example.app", "2026-05-09", 500_000L)
+            assertEquals(500_000L, dao.get("com.example.app", "2026-05-09")?.durationMs)
         }
 
     @Test

@@ -33,6 +33,19 @@ interface UsageRecordDao {
         dayKey: String,
     ): Flow<UsageRecordEntity?>
 
+    @Query(
+        """
+        INSERT INTO usage_records(packageName, dayKey, durationMs)
+        VALUES(:packageName, :dayKey, :additionalMs)
+        ON CONFLICT(packageName, dayKey) DO UPDATE SET durationMs = durationMs + :additionalMs
+    """,
+    )
+    suspend fun accumulate(
+        packageName: String,
+        dayKey: String,
+        additionalMs: Long,
+    )
+
     @Query("DELETE FROM usage_records WHERE dayKey = :dayKey")
     suspend fun deleteAllForDay(dayKey: String)
 }
