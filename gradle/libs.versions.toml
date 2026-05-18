@@ -27,6 +27,7 @@ lifecycleViewmodelNav3 = "2.10.0"
 datastorePreferences = "1.2.1"
 robolectric = "4.16.1"
 room = "2.8.4"
+timber = "5.0.1"
 turbine = "1.2.1"
 
 [libraries]
@@ -74,6 +75,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
 [plugins]

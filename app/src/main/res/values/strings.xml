@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Mindful</string>
+    <string name="accessibility_service_label">Mindful App Blocker</string>
+    <string name="accessibility_service_description">
+        Mindful detects which app is in the foreground to enforce your usage limits.
+        It does not read any screen content, text, passwords, or personal data.
+    </string>
 </resources>
