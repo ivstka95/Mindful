@@ -2,6 +2,7 @@ package ivan.karpiuk.mindful.onboarding
 
 import android.provider.Settings
 import androidx.lifecycle.SavedStateHandle
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
@@ -11,9 +12,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
+@RunWith(AndroidJUnit4::class)
 class OnboardingViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -141,6 +141,21 @@ class OnboardingViewModelTest {
             vm.uiState.test {
                 awaitItem() // initial AccessibilityEnableWaiting
                 vm.onEvent(OnboardingEvent.PermissionCheckRequested)
+                assertEquals(OnboardingStep.Complete, awaitItem().step)
+                cancelAndConsumeRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `PrimaryActionClicked on Welcome goes to Complete when both permissions already granted`() =
+        runTest {
+            every { permissionChecker.isUsageAccessGranted() } returns true
+            every { permissionChecker.isAccessibilityServiceEnabled() } returns true
+            val vm = viewModel()
+
+            vm.uiState.test {
+                awaitItem() // initial Welcome
+                vm.onEvent(OnboardingEvent.PrimaryActionClicked)
                 assertEquals(OnboardingStep.Complete, awaitItem().step)
                 cancelAndConsumeRemainingEvents()
             }

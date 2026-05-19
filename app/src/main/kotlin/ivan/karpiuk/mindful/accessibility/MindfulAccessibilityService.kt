@@ -2,10 +2,8 @@ package ivan.karpiuk.mindful.accessibility
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
-import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
-@AndroidEntryPoint
 class MindfulAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
@@ -13,7 +11,7 @@ class MindfulAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        Timber.d("onAccessibilityEvent: type=%s pkg=%s", event.eventType, event.packageName)
+        Timber.d("onAccessibilityEvent: type=%s", event.eventType)
     }
 
     override fun onInterrupt() = Unit

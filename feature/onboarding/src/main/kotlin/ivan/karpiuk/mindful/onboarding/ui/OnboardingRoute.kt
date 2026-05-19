@@ -42,11 +42,6 @@ fun OnboardingRoute(
                 modifier = modifier,
                 onPrimaryAction = { viewModel.onEvent(OnboardingEvent.PrimaryActionClicked) },
             )
-        OnboardingStep.UsageAccessExplanation ->
-            UsageAccessScreen(
-                modifier = modifier,
-                onOpenSettings = { viewModel.onEvent(OnboardingEvent.PrimaryActionClicked) },
-            )
         OnboardingStep.UsageAccessWaiting ->
             UsageAccessWaitingScreen(
                 modifier = modifier,

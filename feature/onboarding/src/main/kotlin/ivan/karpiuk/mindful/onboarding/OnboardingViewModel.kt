@@ -118,7 +118,6 @@ private fun serializeStep(step: OnboardingStep): String = step::class.simpleName
 private fun deserializeStep(name: String): OnboardingStep? =
     when (name) {
         "Welcome" -> OnboardingStep.Welcome
-        "UsageAccessExplanation" -> OnboardingStep.UsageAccessExplanation
         "UsageAccessWaiting" -> OnboardingStep.UsageAccessWaiting
         "AccessibilityDisclosure" -> OnboardingStep.AccessibilityDisclosure
         "AccessibilityEnableWaiting" -> OnboardingStep.AccessibilityEnableWaiting
