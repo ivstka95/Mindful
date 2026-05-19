@@ -24,6 +24,14 @@ Tracked from the foundation hardening pass on 2026-05-04. None block day-to-day 
 - Trigger: zero configuration-cache warnings across a full `./gradlew check :app:assembleDebug` run.
 - Action: flip `org.gradle.configuration-cache.problems=warn` → `fail` in `gradle.properties` and verify CI stays green.
 
+## P2.5 — Onboarding UI polish pass
+
+### Roborazzi screenshot tests for onboarding screens
+- 6 screens added in `feat/onboarding-permissions` (PR #64) have no screenshot or interaction tests yet.
+- CLAUDE.md requires: Roborazzi at 393×852dp light+dark per screen + Compose UI Test for primary interactions; goldens committed to repo.
+- Trigger: after UI polish is complete (colours, spacing, copy finalised) — add goldens once the visuals are stable so they don't churn on every tweak.
+- Action: add Roborazzi + Compose UI Test infrastructure to `:feature:onboarding`, write one test class per screen, record goldens, commit images.
+
 ## P3 — Do before shipping, not before
 
 ### Validate release build end-to-end
